@@ -1,0 +1,66 @@
+export default {
+  extends: ['@commitlint/config-conventional'],
+  parserPreset: 'conventional-changelog-conventionalcommits',
+  rules: {
+    'type-enum': [
+      2,
+      'always',
+      [
+        'feat',
+        'fix',
+        'docs',
+        'style',
+        'refactor',
+        'perf',
+        'test',
+        'build',
+        'ci',
+        'chore',
+        'revert',
+      ],
+    ],
+  },
+  ignores: [(commit) => commit === ''],
+  defaultIgnores: true,
+  helpUrl:
+    'https://github.com/conventional-changelog/commitlint/#what-is-commitlint',
+  prompt: {
+    messages: {
+      skip: ':skip',
+      max: 'upper %d chars',
+      min: '%d chars at least',
+      emptyWarning: 'cannot be empty',
+      upperLimitWarning: 'over limit',
+      lowerLimitWarning: 'below limit',
+    },
+    questions: {
+      type: {
+        description: "Select the type of change that you're committing:",
+        enum: {
+          feat: { description: 'A new feature', emoji: '✨' },
+          fix: { description: 'A bug fix', emoji: '🐛' },
+          docs: { description: 'Documentation only changes', emoji: '📚' },
+          style: { description: 'Formatting/whitespace changes', emoji: '💎' },
+          refactor: { description: 'Code refactoring', emoji: '📦' },
+          perf: { description: 'Performance improvements', emoji: '🚀' },
+          test: { description: 'Adding or fixing tests', emoji: '🚨' },
+          build: { description: 'Changes affecting build system', emoji: '🛠' },
+          ci: { description: 'CI config changes', emoji: '⚙️' },
+          chore: { description: 'Other non-src/test changes', emoji: '♻️' },
+          revert: { description: 'Reverts a previous commit', emoji: '🗑' },
+        },
+      },
+      scope: { description: 'What is the scope of this change?' },
+      subject: { description: 'Short, imperative description of the change' },
+      body: { description: 'Longer description of the change' },
+      isBreaking: { description: 'Are there breaking changes?' },
+      breakingBody: { description: 'Describe breaking changes in detail' },
+      breaking: { description: 'Describe the breaking changes' },
+      isIssueAffected: {
+        description: 'Does this change affect any open issues?',
+      },
+      issuesBody: { description: 'Describe the related issues in detail' },
+      issues: { description: 'Add issue references (e.g., "fix #123")' },
+    },
+  },
+};
