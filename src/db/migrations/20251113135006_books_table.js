@@ -13,7 +13,7 @@ await knex.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
     table.foreign('genre_id').references('id').inTable('genres').onDelete('CASCADE');
     table.decimal('price').notNullable();
     table.integer('stock').notNullable();
-    table.date('publishedDate').notNullable();
+    table.date('published_date').notNullable();
     table.enum('status', ['available', 'out of stock', 'discontinued']);
     table.specificType('imageURLs', 'text[]');
     table.text('decription');
