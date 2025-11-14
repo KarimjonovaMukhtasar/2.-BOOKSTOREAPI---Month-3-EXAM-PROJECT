@@ -7,7 +7,6 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, './.env') });
 
-
 export default {
   development: {
     client: 'pg',
@@ -19,12 +18,11 @@ export default {
       database: process.env.DB_NAME,
     },
     migrations: {
-      directory: './migrations',
+      directory: './src/db/migrations',
     },
     seeds: {
-      directory: './seeds',
+      directory: './src/db/seeds',
     },
-    
   },
   
 };
