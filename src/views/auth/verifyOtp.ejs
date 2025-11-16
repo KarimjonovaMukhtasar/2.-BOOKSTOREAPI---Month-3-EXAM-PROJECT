@@ -1,0 +1,19 @@
+<% layout('layouts/main', { title: 'Verify OTP' }) %>
+<% if (message) { %>
+<script>
+  alert("<%= message %>");
+</script>
+<% } %>
+
+<h2>Verify OTP</h2>
+<p>Please enter the OTP sent to your email or phone.</p>
+
+<form action="/auth/verify-otp" method="POST">
+    <label>OTP Code:</label>
+    <input type="text" name="otp" required placeholder="Enter OTP">
+
+    <button type="submit">Verify</button>
+</form>
+
+<p>Didn't receive OTP? <a href="/auth/resend-otp">Resend OTP</a></p>
+

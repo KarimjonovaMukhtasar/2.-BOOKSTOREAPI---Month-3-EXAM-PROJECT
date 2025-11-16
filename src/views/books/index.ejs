@@ -1,0 +1,11 @@
+<% layout('layouts/main', { title: 'Books' }) %>
+
+<h2>Books</h2>
+<a href="/books/create">Add New Book</a>
+<ul>
+    <% books.forEach(book => { %>
+        <li>
+            <a href="/books/<%= book.id %>"><%= book.title %></a> by <%= book.author_name %> - $<%= book.price %>
+        </li>
+    <% }) %>
+</ul>

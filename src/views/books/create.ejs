@@ -1,0 +1,46 @@
+<% layout('layouts/main', { title: 'Add New Book' }) %>
+
+<h2>Add New Book</h2>
+<form action="/books" method="POST">
+    <label>Title:</label>
+    <input type="text" name="title" required>
+
+    <label>Author:</label>
+    <select name="author_id" required>
+        <% authors.forEach(author => { %>
+            <option value="<%= author.id %>"><%= author.name %></option>
+        <% }) %>
+    </select>
+
+    <label>Genre:</label>
+    <select name="genre_id" required>
+        <% genres.forEach(genre => { %>
+            <option value="<%= genre.id %>"><%= genre.name %></option>
+        <% }) %>
+    </select>
+
+    <label>Price:</label>
+    <input type="number" name="price" step="0.01" required>
+
+    <label>Stock:</label>
+    <input type="number" name="stock" required>
+
+    <label>Published Date:</label>
+    <input type="date" name="published_date">
+
+    <label>Status:</label>
+    <select name="status">
+        <option value="available">Available</option>
+        <option value="out of stock">Out of Stock</option>
+        <option value="discontinued">Discontinued</option>
+    </select>
+
+    <label>Description:</label>
+    <textarea name="description"></textarea>
+
+    <label>Image URLs (comma separated):</label>
+    <input type="text" name="imageUrls">
+
+    <button type="submit">Create Book</button>
+</form>
+<a href="/books">Back to Books</a>
