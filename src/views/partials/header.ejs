@@ -1,0 +1,17 @@
+<header>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/books">Books</a>
+        <a href="/authors">Authors</a>
+        <a href="/genres">Genres</a>
+
+        <% if (!user) { %>
+            <a href="/auth/signin">Login</a>
+            <a href="/auth/signup">Register</a>
+        <% } else { %>
+            <a href="/orders">My Orders</a>
+            <span>Welcome, <%= user.username %></span>
+            <a href="/auth/logout">Logout</a>
+        <% } %>
+    </nav>
+</header>

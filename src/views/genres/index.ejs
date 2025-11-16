@@ -1,0 +1,11 @@
+<% layout('layouts/main', { title: 'Genres' }) %>
+
+<h2>Genres</h2>
+<a href="/genres/create">Add New Genre</a>
+<ul>
+    <% genres.forEach(genre => { %>
+        <li>
+            <a href="/genres/<%= genre.id %>"><%= genre.name %></a>
+        </li>
+    <% }) %>
+</ul>

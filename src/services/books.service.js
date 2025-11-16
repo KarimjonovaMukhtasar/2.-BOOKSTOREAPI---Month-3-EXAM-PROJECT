@@ -16,7 +16,7 @@ export const BookService = {
       .columnInfo()
       .then((info) =>
         Object.entries(info)
-          .filter(([_, col]) =>
+          .filter(([col]) =>
             ['character varying', 'varchar', 'text'].includes(col.type),
           )
           .map(([name]) => name),

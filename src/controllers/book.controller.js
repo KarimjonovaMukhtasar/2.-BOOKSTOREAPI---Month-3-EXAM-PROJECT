@@ -3,9 +3,11 @@ import { BookService } from "../services/books.service.js";
 const getAllBooks = async (req, res) => {
   try {
     const books = await BookService.getAll();
-    return res.status(200).json(books);
+    req.flash('success_msg', 'RETRIEVED ALL BOOKS SUCCESSFULLY!');
+      res.render('books/index', { books });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    req.flash('error_msg', err.message);
+      res.redirect('books/index');
   }
 };
 
@@ -40,7 +42,7 @@ const updateBook = async (req, res) => {
   }
 };
 
- const deleteBook = async (req, res) => {
+const deleteBook = async (req, res) => {
   try {
     const { id } = req.params;
     const deleted = await BookService.remove(id);

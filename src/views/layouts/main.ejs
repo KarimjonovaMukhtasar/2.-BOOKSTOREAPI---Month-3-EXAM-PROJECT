@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title : 'BookStoreAPI' %></title>
+    <link rel="stylesheet" href="public/css/style.css">
+</head>
+<body>
+    <%- include('../partials/header', { user: user || null }) %>
+
+    <main>
+        <%- include('../partials/messages', { message: message || null }) %>
+        <%- include('../partials/errors', { errors: errors || null }) %>
+        <%- body %>
+    </main>
+
+    <%- include('../partials/footer') %>
+</body>
+</html>

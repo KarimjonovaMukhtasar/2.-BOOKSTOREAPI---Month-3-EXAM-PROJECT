@@ -1,0 +1,46 @@
+<% layout('layouts/main', { title: 'Edit ' + book.title }) %>
+
+<h2>Edit Book</h2>
+<form action="/books/<%= book.id %>?_method=PUT" method="POST">
+    <label>Title:</label>
+    <input type="text" name="title" value="<%= book.title %>" required>
+
+    <label>Author:</label>
+    <select name="authorId" required>
+        <% authors.forEach(author => { %>
+            <option value="<%= author.id %>" <%= author.id === book.author_id ? 'selected' : '' %>><%= author.name %></option>
+        <% }) %>
+    </select>
+
+    <label>Genre:</label>
+    <select name="genreId" required>
+        <% genres.forEach(genre => { %>
+            <option value="<%= genre.id %>" <%= genre.id === book.genre_id ? 'selected' : '' %>><%= genre.name %></option>
+        <% }) %>
+    </select>
+
+    <label>Price:</label>
+    <input type="number" name="price" step="0.01" value="<%= book.price %>" required>
+
+    <label>Stock:</label>
+    <input type="number" name="stock" value="<%= book.stock %>" required>
+
+    <label>Published Date:</label>
+    <input type="date" name="published_date" value="<%= book.published_date.toISOString().substring(0,10) %>">
+
+    <label>Status:</label>
+    <select name="status">
+        <option value="available" <%= book.status === 'available' ? 'selected' : '' %>>Available</option>
+        <option value="out of stock" <%= book.status === 'out of stock' ? 'selected' : '' %>>Out of Stock</option>
+        <option value="discontinued" <%= book.status === 'discontinued' ? 'selected' : '' %>>Discontinued</option>
+    </select>
+
+    <label>Description:</label>
+    <textarea name="description"><%= book.description %></textarea>
+
+    <label>Image URLs (comma separated):</label>
+    <input type="text" name="imageUrls" value="<%= book.imageUrls.join(',') %>">
+
+    <button type="submit">Update Book</button>
+</form>
+<a href="/books/<%= book.id %>">Back to Book</a>

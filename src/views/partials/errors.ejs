@@ -1,0 +1,9 @@
+<% if (errors && errors.length) { %>
+  <div style="padding: 10px; margin: 10px 0; background-color: #f8d7da; color: #721c24; border-radius: 4px;">
+    <ul style="margin: 0; padding-left: 20px;">
+      <% errors.forEach(err => { %>
+        <li><strong><%= err.field %>:</strong> <%= err.message %></li>
+      <% }) %>
+    </ul>
+  </div>
+<% } %>

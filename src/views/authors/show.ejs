@@ -1,0 +1,12 @@
+<% layout('layouts/main', { title: author.name }) %>
+<% if (message) { %>
+<script>
+  alert("<%= message %>");
+</script>
+<% } %>
+
+
+<h2><%= author.name %></h2>
+<p>Bio: <%= author.bio %></p>
+<p>Birthdate: <%= author.birthdate.toDateString() %></p>
+<a href="/authors">Back to Authors</a>
