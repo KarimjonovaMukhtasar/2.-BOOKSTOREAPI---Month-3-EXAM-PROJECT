@@ -1,0 +1,41 @@
+<main>
+  <div class="form-card" style="max-width: 100%; text-align: center; padding: 20px;">
+    <h2 id="welcome-title">Welcome to BookStoreAPI!</h2>
+    <p id="welcome-subtitle">Manage your books, authors, and genres easily.</p>
+
+    <!-- Horizontal card grid for navigation -->
+    <div style="
+        margin-top: 30px;
+        display: flex;
+        flex-wrap: wrap; /* Allows wrapping if screen is too small, but primarily horizontal */
+        justify-content: center; /* Centers the cards horizontally */
+        gap: 15px; /* Spacing between cards */
+        width: 100%; /* Ensures the container takes full width */
+    ">
+      <a href="/books" class="card-link interactive-card" style="flex: 1 1 auto; min-width: 150px; max-width: 200px;">
+        <h5>Books</h5>
+        <p>Browse all books</p>
+      </a>
+      <a href="/authors" class="card-link interactive-card" style="flex: 1 1 auto; min-width: 150px; max-width: 200px;">
+        <h5>Authors</h5>
+        <p>Discover authors</p>
+      </a>
+      <a href="/genres" class="card-link interactive-card" style="flex: 1 1 auto; min-width: 150px; max-width: 200px;">
+        <h5>Genres</h5>
+        <p>Explore genres</p>
+      </a>
+      <a href="/orders" class="card-link interactive-card" style="flex: 1 1 auto; min-width: 150px; max-width: 200px;">
+        <h5>Orders</h5>
+        <p>Your order history</p>
+      </a>
+      <a href="/auth/signin" class="card-link interactive-card" style="flex: 1 1 auto; min-width: 150px; max-width: 200px;">
+        <h3>Login</h3>
+        <p>Access your account</p>
+      </a>
+      <a href="/auth/signup" class="card-link interactive-card" style="flex: 1 1 auto; min-width: 150px; max-width: 200px;">
+        <h3>Register</h3>
+        <p>Create new account</p>
+      </a>
+    </div>
+  </div>
+</main>

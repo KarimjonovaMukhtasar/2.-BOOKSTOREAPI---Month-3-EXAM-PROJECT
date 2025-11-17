@@ -1,17 +1,8 @@
-<% layout('layouts/main', { title: 'Refresh Token' }) %>
-<% if (message) { %>
-<script>
-  alert("<%= message %>");
-</script>
-<% } %>
-
-
 <h2>Refresh Access Token</h2>
 <p>Use your refresh token to get a new access token.</p>
 
 <form action="/auth/refresh-token" method="POST">
     <label>Refresh Token:</label>
     <input type="text" name="refreshToken" required placeholder="Enter your refresh token">
-
     <button type="submit">Get New Token</button>
 </form>

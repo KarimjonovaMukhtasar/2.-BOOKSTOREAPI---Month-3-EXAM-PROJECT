@@ -1,12 +1,6 @@
-<% layout('layouts/main', { title: 'Logout' }) %>
-<% if (message) { %>
-<script>
-  alert("<%= message %>");
-</script>
-<% } %>
+    <h2>Logout</h2>
+    <p>You have been successfully logged out.</p>
+    <a href="/auth/signin">Login Again</a>
+  </div>
+</main>
 
-
-
-<h2>Logout</h2>
-<p>You have been successfully logged out.</p>
-<a href="/auth/login">Login Again</a>

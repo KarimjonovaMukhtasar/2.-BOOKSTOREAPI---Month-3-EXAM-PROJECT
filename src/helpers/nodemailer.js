@@ -1,9 +1,9 @@
-import nodemailer from "nodemailer";
-import "dotenv/config";
+import nodemailer from 'nodemailer';
+import 'dotenv/config';
 
 // Create the transporter for Gmail
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  service: 'gmail',
   auth: {
     user: process.env.GOOGLE_MAIL,
     pass: process.env.GOOGLE_APP_PASSWORD,
@@ -77,12 +77,12 @@ export const mailer = async (to, otp) => {
     const info = await transporter.sendMail({
       from: `"Mukhtasar Karimjonova" <${process.env.GOOGLE_MAIL}>`,
       to,
-      subject: "Your OTP Code",
+      subject: 'Your OTP Code',
       html,
     });
     return info;
   } catch (err) {
-    console.log("Mailer Error:", err.message);
+    console.log('Mailer Error:', err.message);
     throw new Error(err);
   }
 };
@@ -143,12 +143,12 @@ export const orderMailer = async (to, message) => {
     const info = await transporter.sendMail({
       from: `"Mukhtasar Karimjonova" <${process.env.GOOGLE_MAIL}>`,
       to,
-      subject: "Your Order Status",
+      subject: 'Your Order Status',
       html,
     });
     return info;
   } catch (err) {
-    console.log("Order Mailer Error:", err.message);
+    console.log('Order Mailer Error:', err.message);
     throw new Error(err);
   }
 };
