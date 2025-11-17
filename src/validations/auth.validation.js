@@ -34,4 +34,4 @@ const LoginValidate = z.object({
   password: z.string(),
 });
 
-export { userRegisterValidate, LoginValidate};
+export { userRegisterValidate, LoginValidate };

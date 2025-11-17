@@ -3,7 +3,6 @@ import { z } from 'zod';
 const userValidate = z.object({
   username: z
     .string()
-    .unique()
     .min(5, `TOO SHORT FOR A USERNAME`)
     .max(10, `TOO LONG FOR A USERNAME`),
   password: z
@@ -31,7 +30,6 @@ const userValidate = z.object({
 const userUpdate = z.object({
   username: z
     .string()
-    .unique()
     .min(5, `TOO SHORT FOR A USERNAME`)
     .max(10, `TOO LONG FOR A USERNAME`)
     .optional(),

@@ -1,0 +1,58 @@
+<style>
+    .form-container {
+        max-width: 700px;
+        margin: 40px auto;
+        padding: 25px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    }
+    .form-container h2 {
+        text-align: center;
+        color: #3f51b5;
+        margin-bottom: 20px;
+    }
+    .form-container p.message { text-align: center; color: green; font-weight: bold; }
+    .form-container p.error { text-align: center; color: red; font-weight: bold; }
+    .form-container form { display: flex; flex-direction: column; gap: 15px; }
+    .form-container input,
+    .form-container textarea {
+        padding: 12px;
+        font-size: 1em;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+    .form-container button {
+        padding: 12px;
+        background-color: #3f51b5;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.2s ease;
+    }
+    .form-container button:hover { background-color: #303f9f; }
+</style>
+
+<div class="form-container">
+    <h2><%= title %></h2>
+
+    <% if (message) { %>
+        <p class="message"><%= message %></p>
+    <% } %>
+
+    <% if (errors && errors.length > 0) { %>
+        <% errors.forEach(function(err) { %>
+            <p class="error"><%= err.message %></p>
+        <% }) %>
+    <% } %>
+
+    <form action="<%= data && data.id ? '/authors/' + data.id + '/edit' : '/authors/new' %>" method="POST">
+        <input type="text" name="name" placeholder="Author Name" value="<%= data?.name || '' %>" required>
+        <textarea name="bio" placeholder="Biography"><%= data?.bio || '' %></textarea>
+        <label>Birth Date:</label>
+        <input type="date" name="birth_date" value="<%= data?.birth_date ? new Date(data.birth_date).toISOString().slice(0,10) : '' %>" required>
+        <button type="submit"><%= data && data.id ? 'Update Author' : 'Create Author' %></button>
+    </form>
+</div>

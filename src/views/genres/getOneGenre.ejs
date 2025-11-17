@@ -1,0 +1,18 @@
+<style>
+    .one-genre-container { max-width: 600px; margin: 40px auto; padding: 20px; background:#fff; border-radius:8px; box-shadow:0 8px 16px rgba(0,0,0,0.1); }
+    .one-genre-container h2 { text-align:center; color:#3f51b5; margin-bottom:15px; }
+    .one-genre-container p { margin:6px 0; }
+    .actions { margin-top:20px; display:flex; gap:10px; }
+    .actions button { flex:1; padding:10px; border:none; border-radius:5px; cursor:pointer; color:white; }
+    .btn-edit{background-color:#28a745;} .btn-edit:hover{background-color:#218838;}
+    .btn-back{background-color:#6c757d;} .btn-back:hover{background-color:#5a6268;}
+</style>
+
+<div class="one-genre-container">
+    <h2><%= genre.name %></h2>
+    <p><%= genre.description || 'No description available.' %></p>
+    <div class="actions">
+        <button class="btn-edit" onclick="location.href='/genres/<%= genre.id %>/edit'">Edit</button>
+        <button class="btn-back" onclick="location.href='/genres'">Back</button>
+    </div>
+</div>

@@ -1,0 +1,60 @@
+<style>
+    .all-genres-container { max-width: 800px; margin: 40px auto; padding: 20px; background: #fff; border-radius: 8px; }
+    .all-genres-container h2 { text-align: center; color: #3f51b5; margin-bottom: 20px; }
+    .search-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+    .search-bar input { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+    .search-bar button { padding: 10px 15px; border-radius: 5px; border: none; background-color: #3f51b5; color: white; cursor: pointer; }
+    .genre-card { border: 1px solid #eee; padding: 15px; border-radius: 5px; margin-bottom: 15px; }
+    .genre-card h3 { margin: 0 0 10px 0; color: #3f51b5; }
+    .genre-card p { margin: 5px 0; }
+    .genre-card-actions { display: flex; gap: 10px; margin-top: 10px; }
+    .genre-card-actions button { flex: 1; padding: 8px; border: none; border-radius: 5px; cursor: pointer; color:white; }
+    .btn-edit { background-color: #28a745; } .btn-edit:hover { background-color: #218838; }
+    .btn-delete { background-color: #dc3545; } .btn-delete:hover { background-color: #c82333; }
+    .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 20px; }
+    .pagination button { padding: 8px 12px; border-radius: 5px; border: 1px solid #ddd; cursor: pointer; }
+    .pagination button.active { background-color: #3f51b5; color: white; border-color: #3f51b5; }
+</style>
+
+<div class="all-genres-container">
+    <h2>All Genres</h2>
+    <div class="search-bar">
+        <input type="text" placeholder="Search by name">
+        <button onclick="location.href='/genres/new'">New Genre</button>
+    </div>
+
+    <% if(genres && genres.length>0){ genres.forEach(genre => { %>
+    <div class="genre-card">
+        <h3><%= genre.name %></h3>
+        <p><%= genre.description || 'No description' %></p>
+        <div class="genre-card-actions">
+            <button class="btn-edit" onclick="location.href='/genres/<%= genre.id %>/edit'">Edit</button>
+            <button class="btn-delete" onclick="deleteGenre('<%= genre.id %>')">Delete</button>
+        </div>
+    </div>
+    <% }) } else { %>
+        <p style="text-align:center;color:#888;">No genres found.</p>
+    <% } %>
+
+   <div class="pagination">
+        <% if (pagination) { %>
+            <% if (pagination.prevPage) { %>
+                <button onclick="location.href='?page=<%= pagination.prevPage %>'">Previous</button>
+            <% } %>
+            <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+                <button class="<%= i === pagination.currentPage ? 'active' : '' %>" onclick="location.href='?page=<%= i %>'"><%= i %></button>
+            <% } %>
+            <% if (pagination.nextPage) { %>
+                <button onclick="location.href='?page=<%= pagination.nextPage %>'">Next</button>
+            <% } %>
+        <% } %>
+    </div>
+</div>
+
+<script>
+function deleteGenre(id){
+    if(confirm('Are you sure you want to delete this genre?')){
+        fetch(`/genres/${id}/delete`,{method:'POST'}).then(()=>location.reload());
+    }
+}
+</script>

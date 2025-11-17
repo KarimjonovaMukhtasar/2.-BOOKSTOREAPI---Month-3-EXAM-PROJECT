@@ -1,0 +1,80 @@
+<style>
+    .profile-container {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 25px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        font-family: Arial, sans-serif;
+    }
+    .profile-container h2 {
+        text-align: center;
+        color: #3f51b5;
+        margin-bottom: 20px;
+    }
+    .profile-item {
+        margin-bottom: 15px;
+    }
+    .profile-item label {
+        font-weight: bold;
+        color: #555;
+        display: block;
+        margin-bottom: 5px;
+    }
+    .profile-item span {
+        display: block;
+        padding: 10px;
+        background-color: #f2f2f2;
+        border-radius: 5px;
+        font-size: 1em;
+        color: #333;
+    }
+    .profile-container a {
+        display: block;
+        text-align: center;
+        margin-top: 20px;
+        text-decoration: none;
+        color: #3f51b5;
+        font-weight: bold;
+    }
+    .profile-container a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="profile-container">
+    <h2>User Profile</h2>
+
+    <div class="profile-item">
+        <label>First Name:</label>
+        <span><%= user.first_name %></span>
+    </div>
+
+    <div class="profile-item">
+        <label>Last Name:</label>
+        <span><%= user.last_name %></span>
+    </div>
+
+    <div class="profile-item">
+        <label>Email:</label>
+        <span><%= user.email %></span>
+    </div>
+
+    <div class="profile-item">
+        <label>Username:</label>
+        <span><%= user.username %></span>
+    </div>
+
+    <div class="profile-item">
+        <label>Phone Number:</label>
+        <span><%= user.phone_number %></span>
+    </div>
+
+    <div class="profile-item">
+        <label>Role:</label>
+        <span><%= user.role %></span>
+    </div>
+
+    <a href="/users">Back to Users</a>
+</div>

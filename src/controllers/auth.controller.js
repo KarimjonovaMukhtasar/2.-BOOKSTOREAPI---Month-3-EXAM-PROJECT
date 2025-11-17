@@ -249,7 +249,7 @@ const getHomePage = (req, res) => {
     user: req.user || null,
     errors: null,
   });
-}; 
+};
 
 export {
   getSignInPage,
@@ -262,5 +262,5 @@ export {
   verifyOtp,
   logOut,
   refreshToken,
-  getHomePage
+  getHomePage,
 };

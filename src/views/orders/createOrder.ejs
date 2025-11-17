@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create New Order</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+        }
+        .order-form-container {
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 25px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        .order-form-container h2 {
+            text-align: center;
+            color: #3f51b5;
+            margin-bottom: 20px;
+        }
+        .order-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .order-item input {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            flex: 1;
+        }
+        .add-item-btn, .submit-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .add-item-btn {
+            background-color: #03a9f4;
+            color: white;
+            margin-bottom: 15px;
+        }
+        .add-item-btn:hover { background-color: #0288d1; }
+        .submit-btn {
+            background-color: #4caf50;
+            color: white;
+        }
+        .submit-btn:hover { background-color: #388e3c; }
+
+        .error-message {
+            color: red;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .success-message {
+            color: green;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<%- include('../partials/header') %>
+
+<div class="order-form-container">
+    <h2>Create New Order</h2>
+
+    <!-- Display messages -->
+    <% if (message) { %>
+        <p class="success-message"><%= message %></p>
+    <% } %>
+    <% if (errors && errors.length > 0) { %>
+        <div class="error-message">
+            <ul>
+                <% errors.forEach(error => { %>
+                    <li><%= error.message %></li>
+                <% }) %>
+            </ul>
+        </div>
+    <% } %>
+
+    <form action="/orders/new" method="POST" id="orderForm">
+        <div id="orderItems">
+            <% if (data.items && data.items.length > 0) { %>
+                <% data.items.forEach((item, index) => { %>
+                    <div class="order-item">
+                        <input type="text" name="items[<%= index %>][book_id]" placeholder="Book ID" value="<%= item.book_id %>" required>
+                        <input type="number" name="items[<%= index %>][quantity]" placeholder="Quantity" min="1" value="<%= item.quantity %>" required>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="order-item">
+                    <input type="text" name="items[0][book_id]" placeholder="Book ID" required>
+                    <input type="number" name="items[0][quantity]" placeholder="Quantity" min="1" required>
+                </div>
+            <% } %>
+        </div>
+
+        <button type="button" class="add-item-btn" id="addItemBtn">Add Another Item</button>
+        <button type="submit" class="submit-btn">Submit Order</button>
+    </form>
+</div>
+
+<script>
+    let itemIndex = document.querySelectorAll('.order-item').length;
+
+    document.getElementById('addItemBtn').addEventListener('click', () => {
+        const wrapper = document.getElementById('orderItems');
+
+        const newItem = document.createElement('div');
+        newItem.classList.add('order-item');
+
+        newItem.innerHTML = `
+            <input type="text" name="items[${itemIndex}][book_id]" placeholder="Book ID" required>
+            <input type="number" name="items[${itemIndex}][quantity]" placeholder="Quantity" min="1" required>
+        `;
+
+        wrapper.appendChild(newItem);
+        itemIndex++;
+    });
+</script>
+
+</body>
+</html>
