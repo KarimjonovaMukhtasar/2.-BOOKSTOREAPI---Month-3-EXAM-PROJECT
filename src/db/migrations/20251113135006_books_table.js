@@ -3,21 +3,29 @@
  * @returns { Promise<void> }
  */
 export async function up(knex) {
-await knex.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
+  await knex.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
   return knex.schema.createTable('books', (table) => {
     table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
     table.string('title').notNullable();
     table.uuid('author_id').notNullable();
-    table.foreign('author_id').references('id').inTable('authors').onDelete('CASCADE');
+    table
+      .foreign('author_id')
+      .references('id')
+      .inTable('authors')
+      .onDelete('CASCADE');
     table.uuid('genre_id').notNullable();
-    table.foreign('genre_id').references('id').inTable('genres').onDelete('CASCADE');
+    table
+      .foreign('genre_id')
+      .references('id')
+      .inTable('genres')
+      .onDelete('CASCADE');
     table.decimal('price').notNullable();
     table.integer('stock').notNullable();
     table.date('published_date').notNullable();
     table.enum('status', ['available', 'out of stock', 'discontinued']);
     table.specificType('imageURLs', 'text[]');
     table.text('decription');
-    table.timestamps(true, true); 
+    table.timestamps(true, true);
   });
 }
 
@@ -28,4 +36,3 @@ await knex.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
 export async function down(knex) {
   return knex.schema.dropTableIfExists('books');
 }
-

@@ -1,92 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Register</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 500px;
-            margin: 50px auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-        }
-        h2 {
-            text-align: center;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            margin-top: 10px;
-        }
-        input {
-            padding: 8px;
-            margin-top: 4px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-        button {
-            margin-top: 20px;
-            padding: 10px;
-            border: none;
-            border-radius: 4px;
-            background-color: #28a745;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #218838;
-        }
-        p {
-            text-align: center;
-            margin-top: 20px;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Register</title>
 </head>
 <body>
 
-<% if (message) { %>
-<script>
-  alert("<%= message %>");
-</script>
-<% } %>
+<div class="form-container">
+    <h2>Register</h2>
+    <form action="/auth/signup" method="POST">
+        <label>Username</label>
+        <input type="text" name="username" required>
 
-<h2>Register</h2>
+        <label>Email</label>
+        <input type="email" name="email" required>
 
-<form action="/auth/signup" method="POST">
-    <label>Username:</label>
-    <input type="text" name="username" required>
+        <label>Password</label>
+        <input type="password" name="password" required>
 
-    <label>Email:</label>
-    <input type="email" name="email" required>
+        <label>First Name</label>
+        <input type="text" name="first_name" required>
 
-    <label>Password:</label>
-    <input type="password" name="password" required>
+        <label>Last Name</label>
+        <input type="text" name="last_name" required>
 
-    <label>First Name:</label>
-    <input type="text" name="first_name" required>
+        <label>Phone Number</label>
+        <input type="text" name="phone_number" required>
 
-    <label>Last Name:</label>
-    <input type="text" name="last_name" required>
+        <label>Address</label>
+        <input type="text" name="address" required>
 
-    <label>Phone Number:</label>
-    <input type="text" name="phone_number" required>
-
-    <label>Address:</label>
-    <input type="text" name="address" required>
-
-    <button type="submit">Register</button>
-</form>
-
-<% if (data) { %>
-  <p>DATA: <%= JSON.stringify(data) %></p>
-<% } %>
-
-<p>Already have an account? <a href="/auth/signin">Login</a></p>
+        <button type="submit">Register</button>
+    </form>
+    <p>Already have an account? <a href="/auth/signin">Login</a></p>
+</div>
 
 </body>
 </html>

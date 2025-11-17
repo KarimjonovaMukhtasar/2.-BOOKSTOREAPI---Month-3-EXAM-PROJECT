@@ -3,15 +3,21 @@
  * @returns { Promise<void> }
  */
 export async function up(knex) {
-await knex.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
+  await knex.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
   return knex.schema.createTable('orders', (table) => {
     table.uuid('id').primary().defaultTo(knex.raw('uuid_generate_v4()'));
     table.uuid('user_id').notNullable();
-    table.foreign('user_id').references('id').inTable('users').onDelete('CASCADE');
+    table
+      .foreign('user_id')
+      .references('id')
+      .inTable('users')
+      .onDelete('CASCADE');
     table.jsonb('items').notNullable();
     table.decimal('total_price');
-    table.enum('status', ['pending', 'completed', 'cancelled']).defaultTo('pending')
-    table.timestamps(true, true); 
+    table
+      .enum('status', ['pending', 'completed', 'cancelled'])
+      .defaultTo('pending');
+    table.timestamps(true, true);
   });
 }
 
@@ -22,4 +28,3 @@ await knex.raw('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
 export async function down(knex) {
   return knex.schema.dropTableIfExists('orders');
 }
-

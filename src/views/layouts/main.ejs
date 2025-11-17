@@ -1,20 +1,408 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= typeof title !== 'undefined' ? title : 'BookStoreAPI' %></title>
-    <link rel="stylesheet" href="public/css/style.css">
+    <title>
+        <%= typeof title !=='undefined' ? title : 'BookStoreAPI' %>
+    </title>
+
+    <style>
+        /* GLOBAL RESET */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: #343a40;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        header {
+            width: 100%;
+            background-color: #4a6fa5;
+            padding: 15px 0;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .nav-left,
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        nav a,
+        .header-link {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        nav a:hover,
+        .header-link:hover {
+            background-color: #007bff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* MAIN AREA */
+        main {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card-link {
+            color: #4a6fa5;
+            background-color: #f0f0f0;
+            padding: 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+
+        .card-link:hover {
+            background-color: #4a6fa5;
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+
+        /* FORM CARD */
+        .form-card {
+            width: 100%;
+            max-width: 450px;
+            background: #fff;
+            padding: 30px 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-card h1,
+        .form-card h2 {
+            text-align: center;
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #343a40;
+        }
+
+        /* Adjust inputs/buttons slightly */
+        .form-card input {
+            padding: 12px;
+            font-size: 15px;
+        }
+
+        .form-card button {
+            padding: 14px;
+            font-size: 16px;
+        }
+
+        .form-card h1,
+        .form-card h2 {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: #343a40;
+        }
+
+        .form-card form {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-card label {
+            font-weight: 500;
+            font-size: 14px;
+            color: #495057;
+        }
+
+        .form-card input {
+            padding: 12px 10px;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+            font-size: 15px;
+            width: 100%;
+        }
+
+        .form-card input:focus {
+            outline: none;
+            border-color: #4a6fa5;
+            box-shadow: 0 0 0 4px rgba(74, 111, 165, 0.15);
+        }
+
+        .form-card button {
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background-color: #4a6fa5;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .form-card button:hover {
+            background-color: #3a5b8a;
+            transform: translateY(-1px);
+        }
+
+        .form-card p {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .form-card p a {
+            color: #4a6fa5;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .form-card p a:hover {
+            color: #3a5b8a;
+            text-decoration: underline;
+        }
+
+        .profile-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .profile-label {
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .profile-value {
+            color: #343a40;
+            text-align: right;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .success-alert {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-alert {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* FOOTER */
+        footer {
+            width: 100%;
+            background-color: #343a40;
+            color: #dee2e6;
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #495057;
+            font-size: 14px;
+        }
+
+        .footer-links {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #dee2e6;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #fff;
+            text-decoration: underline;
+        }
+
+        .interactive-card {
+            background-color: #f0f4f8;
+            color: #343a40;
+            padding: 20px;
+            border-radius: 12px;
+            text-decoration: none;
+            /* Removed fixed flex-basis for better row distribution, relying on parent's flex properties */
+            /* flex: 1 1 150px; */
+            flex: 1 1 auto;
+            /* Allows cards to grow and shrink */
+            min-width: 150px;
+            /* Minimum width for cards */
+            max-width: 200px;
+            /* Maximum width to prevent them from becoming too wide in a row */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .interactive-card h3,
+        .interactive-card h5 {
+            /* Added h5 for consistency if you use both */
+            margin-bottom: 8px;
+            font-size: 18px;
+            text-align: center;
+            /* Ensure titles are centered */
+        }
+
+        .interactive-card p {
+            font-size: 14px;
+            color: #495057;
+            text-align: center;
+            margin-top: 0;
+            /* Remove default paragraph top margin */
+        }
+
+        .interactive-card:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            background-color: #4a6fa5;
+            color: #fff;
+        }
+
+        .interactive-card:hover p {
+            color: #f0f0f0;
+        }
+
+        body {
+    margin: 0; /* Remove default body margin */
+    padding: 0; /* Remove default body padding */
+    width: 100%; /* Ensure body takes full width */
+    min-height: 100vh; /* Make body at least full viewport height */
+    display: flex; /* Often body is flex container for header, main, footer */
+    flex-direction: column; /* Stack children vertically */
+}
+
+main {
+    flex-grow: 1; /* Allow main to take up available vertical space */
+    width: 100%; /* Ensure main takes full width */
+    padding: 0; /* Remove any default padding that might be shrinking content */
+    display: flex; /* Make main a flex container */
+    justify-content: center; /* Center its immediate child horizontally */
+    align-items: flex-start; /* Align child to the top, or center if you want vertical centering */
+}
+
+/* Add this to ensure the form-card itself is not restricting width unnecessarily */
+.form-card {
+    width: 100%; /* Ensure the card container takes full width of its parent (main) */
+    max-width: 1200px; /* Optional: Set a max-width to prevent content from stretching too wide on very large screens */
+    margin: 0 auto; /* Center the form-card if max-width is applied */
+    padding: 20px; /* Keep your existing padding */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+        /* Adjust spacing for smaller screens */
+        @media (max-width: 768px) {
+            .interactive-card {
+                flex: 1 1 calc(50% - 15px);
+                /* Approximately 2 cards per row with gap */
+                max-width: calc(50% - 15px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .interactive-card {
+                flex: 1 1 100%;
+                /* full width on mobile */
+                max-width: 100%;
+            }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 480px) {
+            .form-card {
+                padding: 25px 15px;
+            }
+
+            .form-card h1,
+            .form-card h2 {
+                font-size: 24px;
+            }
+
+            .form-card input {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .form-card button {
+                padding: 12px;
+                font-size: 15px;
+            }
+
+            @media (max-height: 700px) {
+                .form-card {
+                    max-height: 70vh;
+                    padding: 20px 15px;
+                }
+            }
+
+        }
+    </style>
 </head>
+
 <body>
     <%- include('../partials/header', { user: user || null }) %>
 
-    <main>
-        <%- include('../partials/messages', { message: message || null }) %>
-        <%- include('../partials/errors', { errors: errors || null }) %>
-        <%- body %>
-    </main>
+        <main>
+            <div class="form-card">
+                <%- include('../partials/messages', { message: message || null }) %>
+                    <%- include('../partials/errors', { errors: errors || null }) %>
+                        <%- body %>
+            </div>
+        </main>
 
-    <%- include('../partials/footer') %>
+        <%- include('../partials/footer') %>
 </body>
+
 </html>
