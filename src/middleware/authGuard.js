@@ -1,7 +1,7 @@
 import { verifyToken } from '../helpers/jwt.js';
-import  db  from '../db/knex.js';
+import db from '../db/knex.js';
 import { ApiError } from '../helpers/errorMessage.js';
-import {config} from '../config/index.js';
+import { config } from '../config/index.js';
 
 export const authGuard = async (req, res, next) => {
   try {
@@ -16,7 +16,9 @@ export const authGuard = async (req, res, next) => {
     }
 
     if (!token) {
-      return next(new ApiError(401, 'UNAUTHORIZED: Please login or register first.'));
+      return next(
+        new ApiError(401, 'UNAUTHORIZED: Please login or register first.'),
+      );
     }
     if (token.startsWith('"') && token.endsWith('"')) {
       token = token.slice(1, -1);
@@ -26,7 +28,7 @@ export const authGuard = async (req, res, next) => {
     try {
       validToken = verifyToken(token, config.jwt.accessSecret);
     } catch (err) {
-      return next(new ApiError(401, `INVALID OR EXPIRED TOKEN!`));
+      return next(new ApiError(401, `INVALID OR EXPIRED TOKEN!`, err.message));
     }
     const user = await db('users')
       .select('*')
@@ -42,4 +44,3 @@ export const authGuard = async (req, res, next) => {
     next(error);
   }
 };
-

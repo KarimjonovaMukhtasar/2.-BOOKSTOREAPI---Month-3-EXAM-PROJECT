@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import {authGuard} from '../middleware/authGuard.js'
+import { authGuard } from '../middleware/authGuard.js';
 import {
   signIn,
   signUp,
@@ -10,8 +10,7 @@ import {
   getVerifyOtpPage,
   logOut,
   getRefreshTokenPage,
-  refreshToken
-
+  refreshToken,
 } from '../controllers/auth.controller.js';
 import { validate } from '../middleware/validate.js';
 import {
@@ -27,16 +26,15 @@ export const RegisterRouter = Router();
 RegisterRouter.get('/', getSignUpPage);
 RegisterRouter.post('/', validate(userRegisterValidate), signUp);
 
+export const ProfileRouter = Router();
+ProfileRouter.get('/', authGuard, getMe);
 
-export const ProfileRouter = Router()
-ProfileRouter.get('/', authGuard, getMe)
+export const VerifyOtpRouter = Router();
+VerifyOtpRouter.get('/', authGuard, getVerifyOtpPage);
+VerifyOtpRouter.post('/', authGuard, verifyOtp);
 
-export const VerifyOtpRouter = Router()
-VerifyOtpRouter.get('/', authGuard, getVerifyOtpPage)
-VerifyOtpRouter.post('/', authGuard, verifyOtp)
-
-export const LogoutRouter = Router()
-LogoutRouter.get('/', authGuard, logOut)
+export const LogoutRouter = Router();
+LogoutRouter.get('/', authGuard, logOut);
 
 export const RefreshRouter = Router();
 RefreshRouter.get('/', authGuard, getRefreshTokenPage);

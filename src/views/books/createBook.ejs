@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .form-container {
+            max-width: 700px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-container h2 {
+            text-align: center;
+            color: #3f51b5;
+            margin-bottom: 20px;
+        }
+
+        .form-container p.message {
+            text-align: center;
+            color: green;
+            font-weight: bold;
+        }
+
+        .form-container p.error {
+            text-align: center;
+            color: red;
+            font-weight: bold;
+        }
+
+        .form-container form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-container input,
+        .form-container textarea,
+        .form-container select {
+            padding: 12px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-container button {
+            padding: 12px;
+            background-color: #3f51b5;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+
+        .form-container button:hover {
+            background-color: #303f9f;
+        }
+
+        #imageUrls input {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2><%= title %></h2>
+
+    <% if (message) { %>
+        <p class="message"><%= message %></p>
+    <% } %>
+
+    <% if (errors && errors.length > 0) { %>
+        <% errors.forEach(function(err) { %>
+            <p class="error"><%= err.message %></p>
+        <% }); %>
+    <% } %>
+
+    <form action="<%= data ? '/books/' + data.id + '/edit' : '/books/new' %>" method="POST">
+        <input type="text" name="title" placeholder="Book Title" value="<%= data ? data.title : '' %>" required>
+        <input type="text" name="author_id" placeholder="Author ID" value="<%= data ? data.author_id : '' %>" required>
+        <input type="text" name="genre_id" placeholder="Genre ID" value="<%= data ? data.genre_id : '' %>" required>
+        <input type="number" step="0.01" name="price" placeholder="Price" value="<%= data ? data.price : '' %>" required>
+        <input type="number" name="stock" placeholder="Stock Quantity" value="<%= data ? data.stock : '' %>" required>
+        <input type="date" name="published_date" placeholder="Published Date" value="<%= data ? data.published_date : '' %>" required>
+        <select name="status" required>
+            <option value="available" <%= data && data.status === 'available' ? 'selected' : '' %>>Available</option>
+            <option value="out of stock" <%= data && data.status === 'out of stock' ? 'selected' : '' %>>Out of Stock</option>
+            <option value="discontinued" <%= data && data.status === 'discontinued' ? 'selected' : '' %>>Discontinued</option>
+        </select>
+        <textarea name="decription" placeholder="Book Description" rows="5"><%= data ? data.decription : '' %></textarea>
+
+        <h3 style="margin-top: 15px;">Image URLs</h3>
+        <div id="image_urls">
+            <% if (data && data.imageURLs && data.imageURLs.length) { %>
+                <% data.image_urls.forEach((img) => { %>
+                    <input type="text" name="image_urls[]" value="<%= img %>" placeholder="Image URL">
+                <% }); %>
+            <% } else { %>
+                <input type="text" name="image_urls[]" placeholder="Image URL">
+            <% } %>
+        </div>
+
+        <button type="button" id="addImageBtn">Add Another Image</button>
+        <button type="submit"><%= data ? 'Update Book' : 'Create Book' %></button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('addImageBtn').addEventListener('click', () => {
+        const div = document.getElementById('image_urls');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.name = 'image_urls[]';
+        input.placeholder = 'Image URL';
+        div.appendChild(input);
+    });
+</script>
+
+</body>
+</html>

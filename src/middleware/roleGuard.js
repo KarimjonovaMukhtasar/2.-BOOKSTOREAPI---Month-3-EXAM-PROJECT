@@ -1,4 +1,4 @@
-import { ApiError } from '../helper/errorMessage.js';
+import { ApiError } from '../helpers/errorMessage.js';
 
 export const roleGuard = (...roles) => {
   return (req, res, next) => {

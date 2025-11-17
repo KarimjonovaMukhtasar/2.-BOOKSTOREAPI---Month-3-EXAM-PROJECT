@@ -1,0 +1,66 @@
+<style>
+    .all-users-container { max-width: 900px; margin: 40px auto; padding: 20px; background: #fff; border-radius: 8px; }
+    .all-users-container h2 { text-align: center; color: #3f51b5; margin-bottom: 20px; }
+    .search-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+    .search-bar input { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+    .search-bar button { padding: 10px 15px; border: none; border-radius: 5px; background-color: #3f51b5; color: white; cursor: pointer; }
+    .user-card { display: flex; flex-direction: column; border: 1px solid #eee; padding: 15px; border-radius: 5px; margin-bottom: 15px; }
+    .user-card h3 { margin: 0 0 10px 0; color: #3f51b5; }
+    .user-card p { margin: 3px 0; }
+    .user-card-actions { display: flex; gap: 10px; margin-top: 10px; }
+    .user-card-actions button { flex: 1; padding: 8px; border: none; border-radius: 5px; cursor: pointer; color: white; }
+    .btn-edit { background-color: #28a745; }
+    .btn-edit:hover { background-color: #218838; }
+    .btn-delete { background-color: #dc3545; }
+    .btn-delete:hover { background-color: #c82333; }
+    .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 20px; }
+    .pagination button { padding: 8px 12px; border-radius: 5px; border: 1px solid #ddd; cursor: pointer; }
+    .pagination button.active { background-color: #3f51b5; color: white; border-color: #3f51b5; }
+</style>
+
+<div class="all-users-container">
+    <h2>All Users</h2>
+    <div class="search-bar">
+        <input type="text" placeholder="Search by username or email">
+        <button onclick="location.href='/users/new'">New User</button>
+    </div>
+
+    <% if(users && users.length>0){ users.forEach(user => { %>
+    <div class="user-card">
+        <h3><%= user.username %></h3>
+        <p><strong>Email:</strong> <%= user.email %></p>
+        <p><strong>Name:</strong> <%= user.first_name %> <%= user.last_name %></p>
+        <p><strong>Phone:</strong> <%= user.phone_number %></p>
+        <p><strong>Address:</strong> <%= user.address %></p>
+        <p><strong>Role:</strong> <%= user.role %></p>
+        <p><strong>Status:</strong> <%= user.status %></p>
+        <div class="user-card-actions">
+            <button class="btn-edit" onclick="location.href='/users/<%= user.id %>/edit'">Edit</button>
+            <button class="btn-delete" onclick="deleteUser('<%= user.id %>')">Delete</button>
+        </div>
+    </div>
+    <% }) } else { %>
+        <p style="text-align:center;color:#888;">No users found.</p>
+    <% } %>
+     <div class="pagination">
+        <% if (pagination) { %>
+            <% if (pagination.prevPage) { %>
+                <button onclick="location.href='?page=<%= pagination.prevPage %>'">Previous</button>
+            <% } %>
+            <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+                <button class="<%= i === pagination.currentPage ? 'active' : '' %>" onclick="location.href='?page=<%= i %>'"><%= i %></button>
+            <% } %>
+            <% if (pagination.nextPage) { %>
+                <button onclick="location.href='?page=<%= pagination.nextPage %>'">Next</button>
+            <% } %>
+        <% } %>
+    </div>
+</div>
+
+<script>
+function deleteUser(id){
+    if(confirm('Are you sure you want to delete this user?')){
+        fetch(`/users/${id}/delete`,{method:'POST'}).then(()=>location.reload());
+    }
+}
+</script>

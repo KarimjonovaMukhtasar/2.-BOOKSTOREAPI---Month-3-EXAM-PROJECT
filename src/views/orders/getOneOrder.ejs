@@ -1,0 +1,45 @@
+<style>
+.one-order-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+.one-order-container h2 { text-align:center; color:#3f51b5; margin-bottom:15px; }
+.one-order-container p { margin:5px 0; }
+.items-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+.items-table th, .items-table td { border:1px solid #ddd; padding:8px; text-align:left; }
+.items-table th { background-color:#f2f2f2; }
+.actions { margin-top:20px; display:flex; gap:10px; }
+.actions button { flex:1; padding:10px; border:none; border-radius:5px; cursor:pointer; color:white; }
+.btn-back{background-color:#6c757d;} .btn-back:hover{background-color:#5a6268;}
+.btn-edit{background-color:#28a745;} .btn-edit:hover{background-color:#218838;}
+</style>
+
+<div class="one-order-container">
+    <h2>Order ID: <%= order.id %></h2>
+    <p><strong>User:</strong> <%= order.user.username %> (<%= order.user.email %>)</p>
+    <p><strong>Total Price:</strong> $<%= typeof order.total_price==='number'?order.total_price.toFixed(2):order.total_price %></p>
+    <p><strong>Status:</strong> <%= order.status %></p>
+
+    <h3>Items:</h3>
+    <table class="items-table">
+        <tr>
+            <th>Book ID</th>
+            <th>Quantity</th>
+        </tr>
+        <% order.items.forEach(item => { %>
+        <tr>
+            <td><%= item.book_id %></td>
+            <td><%= item.quantity %></td>
+        </tr>
+        <% }) %>
+    </table>
+
+    <div class="actions">
+        <button class="btn-edit" onclick="location.href='/orders/<%= order.id %>/edit'">Edit Order</button>
+        <button class="btn-back" onclick="location.href='/orders'">Back</button>
+    </div>
+</div>
