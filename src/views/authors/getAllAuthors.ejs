@@ -1,61 +1,430 @@
-<style>
-    .all-authors-container { max-width: 900px; margin: 40px auto; padding: 20px; background: #fff; border-radius: 8px; }
-    .all-authors-container h2 { text-align: center; color: #3f51b5; margin-bottom: 20px; }
-    .search-bar { display: flex; gap: 10px; margin-bottom: 20px; }
-    .search-bar input { flex: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
-    .search-bar button { padding: 10px 15px; border-radius: 5px; border: none; background-color: #3f51b5; color: white; cursor: pointer; }
-    .author-card { border: 1px solid #eee; padding: 15px; border-radius: 5px; margin-bottom: 15px; }
-    .author-card h3 { margin: 0 0 10px 0; color: #3f51b5; }
-    .author-card p { margin: 5px 0; }
-    .author-card-actions { display: flex; gap: 10px; margin-top: 10px; }
-    .author-card-actions button { flex: 1; padding: 8px; border: none; border-radius: 5px; cursor: pointer; color:white; }
-    .btn-edit { background-color: #28a745; } .btn-edit:hover { background-color: #218838; }
-    .btn-delete { background-color: #dc3545; } .btn-delete:hover { background-color: #c82333; }
-    .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 20px; }
-    .pagination button { padding: 8px 12px; border-radius: 5px; border: 1px solid #ddd; cursor: pointer; }
-    .pagination button.active { background-color: #3f51b5; color: white; border-color: #3f51b5; }
-</style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Authors - BookstoreAPI</title>
+    <!-- Using Google Fonts for a modern look -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Define CSS Variables for easy theming */
+        :root {
+            --primary-color: #3f51b5; /* Indigo Blue */
+            --primary-dark: #303f9f;
+            --secondary-color: #00bcd4; /* Cyan */
+            --accent-green: #4CAF50; /* Green for success/add */
+            --accent-green-dark: #388E3C;
+            --accent-red: #f44336; /* Red for danger/delete */
+            --accent-red-dark: #d32f2f;
+            --text-dark: #333;
+            --text-light: #666;
+            --bg-light: #f8f9fa; /* Light background for the page */
+            --card-bg: #ffffff; /* White background for cards */
+            --border-color: #e0e0e0;
+            --shadow-light: rgba(0, 0, 0, 0.08);
+            --shadow-medium: rgba(0, 0, 0, 0.15);
+            --border-radius-main: 12px;
+            --border-radius-sm: 8px;
+        }
 
-<div class="all-authors-container">
-    <h2>All Authors</h2>
-    <div class="search-bar">
-        <input type="text" placeholder="Search by name">
-        <button onclick="location.href='/authors/new'">New Author</button>
-    </div>
+        /* Base Body Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0; /* Remove default padding, container handles it */
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            box-sizing: border-box; /* Crucial for consistent box model */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column; /* Ensure footer stays at bottom */
+            align-items: center;
+        }
 
-    <% if(authors && authors.length > 0){ authors.forEach(author => { %>
-    <div class="author-card">
-        <h3><%= author.name %></h3>
-        <p><strong>Bio:</strong> <%= author.bio || 'No biography available.' %></p>
-        <p><strong>Birth Date:</strong> <%= new Date(author.birth_date).toLocaleDateString() %></p>
-        <div class="author-card-actions">
-            <button class="btn-edit" onclick="location.href='/authors/<%= author.id %>/edit'">Edit</button>
-            <button class="btn-delete" onclick="deleteAuthor('<%= author.id %>')">Delete</button>
+        /* Global Container for the Page Content */
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            margin: 20px auto;
+            padding: 30px;
+            background: var(--card-bg);
+            border-radius: var(--border-radius-main);
+            box-shadow: 0 10px 30px var(--shadow-medium);
+            border: 1px solid var(--border-color);
+        }
+
+        /* Page Title */
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        /* Top Controls: Search and Add New Author */
+        .top-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px; /* Space between items when wrapped */
+        }
+
+        .search-form {
+            display: flex;
+            flex-grow: 1; /* Allows form to take available space */
+            gap: 10px;
+            max-width: 450px; /* Limit search form width */
+        }
+
+        .search-input {
+            flex-grow: 1;
+            padding: 12px 18px;
+            border-radius: var(--border-radius-sm);
+            border: 1px solid var(--border-color);
+            font-size: 1em;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.2);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            color: white;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none; /* For button acting as link */
+            display: inline-flex; /* For consistent alignment */
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            box-shadow: 0 4px 10px rgba(63, 81, 181, 0.2);
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: var(--accent-green);
+            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2);
+        }
+        .btn-success:hover {
+            background-color: var(--accent-green-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Message/Error Boxes */
+        .message-box {
+            background-color: #e8f5e9; /* Light green */
+            color: #2e7d32; /* Dark green */
+            padding: 15px;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 25px;
+            border: 1px solid #c8e6c9;
+            font-size: 0.95em;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .error-box {
+            background-color: #ffebee; /* Light red */
+            color: #c62828; /* Dark red */
+            padding: 15px;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 25px;
+            border: 1px solid #ffcdd2;
+            font-size: 0.95em;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        /* Authors Grid */
+        .authors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .author-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius-sm);
+            box-shadow: 0 4px 15px var(--shadow-light);
+            padding: 25px;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative; /* Needed for full-card-link */
+            cursor: pointer; /* Indicate card is clickable */
+        }
+
+        .author-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px var(--shadow-medium);
+        }
+
+        /* Invisible link covering the entire card for navigation */
+        .author-card .full-card-link {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1; /* Make sure it's above other card content */
+            text-decoration: none;
+            color: transparent; /* Make link text transparent */
+        }
+
+        .author-card h3 {
+            margin: 0 0 10px 0;
+            color: var(--primary-color);
+            font-size: 1.4em;
+            font-weight: 600;
+        }
+
+        .author-card p {
+            margin: 5px 0;
+            font-size: 0.95em;
+            color: var(--text-light);
+        }
+
+        .author-card strong {
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .author-card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 15px;
+            position: relative; /* Ensure buttons are on top */
+            z-index: 2; /* Higher z-index than .full-card-link */
+        }
+
+        .action-button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            color: white;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-edit { background-color: var(--primary-color); }
+        .btn-edit:hover { background-color: var(--primary-dark); transform: translateY(-2px); }
+
+        .btn-delete { background-color: var(--accent-red); }
+        .btn-delete:hover { background-color: var(--accent-red-dark); transform: translateY(-2px); }
+
+        /* No Authors Found Message */
+        .no-authors-found {
+            text-align: center;
+            color: var(--text-light);
+            margin-top: 50px;
+            font-size: 1.1em;
+            padding: 20px;
+            border: 1px dashed var(--border-color);
+            border-radius: var(--border-radius-sm);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 40px;
+            background-color: var(--card-bg); /* Explicit white background */
+        }
+
+        .pagination-link:hover {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(63, 81, 181, 0.2);
+        }
+
+        .pagination-link.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination-link.disabled {
+            background-color: #f0f0f0;
+            color: var(--text-light);
+            cursor: not-allowed;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .top-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-form {
+                max-width: 100%;
+                width: 100%;
+            }
+            .btn-new-author {
+                width: 100%;
+                text-align: center;
+            }
+            .authors-grid {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 20px;
+                margin: 20px auto;
+            }
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>All Authors</h1>
+
+        <div class="top-controls">
+            <form action="/authors" method="GET" class="search-form">
+                <input type="text" name="query" placeholder="Search authors..." class="search-input" value="<%= searchQuery || '' %>">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+            <a href="/authors/new" class="btn btn-success btn-new-author">
+                + Add New Author
+            </a>
         </div>
-    </div>
-    <% }) } else { %>
-        <p style="text-align:center;color:#888;">No authors found.</p>
-    <% } %>
 
-    <div class="pagination">
-        <% if (pagination) { %>
-            <% if (pagination.prevPage) { %>
-                <button onclick="location.href='?page=<%= pagination.prevPage %>'">Previous</button>
-            <% } %>
-            <% for (let i = 1; i <= pagination.totalPages; i++) { %>
-                <button class="<%= i === pagination.currentPage ? 'active' : '' %>" onclick="location.href='?page=<%= i %>'"><%= i %></button>
-            <% } %>
-            <% if (pagination.nextPage) { %>
-                <button onclick="location.href='?page=<%= pagination.nextPage %>'">Next</button>
-            <% } %>
+        <% if (message) { %>
+            <div class="message-box"><%= message %></div>
+        <% } %>
+        <% if (errors && errors.length > 0) { %>
+            <div class="error-box">
+                <% errors.forEach(error => { %>
+                    <p><%= error.msg %></p>
+                <% }) %>
+            </div>
+        <% } %>
+
+        <% if (authors && authors.length > 0) { %>
+            <div class="authors-grid">
+                <% authors.forEach(author => { %>
+                    <div class="author-card">
+                        <a href="/authors/<%= author.id %>" class="full-card-link" aria-label="View details for <%= author.name %>"></a>
+
+                        <div>
+                            <h3><%= author.name %></h3>
+                            <p><strong>Biography:</strong> <%= author.bio ? author.bio.substring(0, 100) + '...' : 'No biography available.' %></p>
+                            <p><strong>Born:</strong> <%= author.birth_date ? new Date(author.birth_date).toLocaleDateString() : 'N/A' %></p>
+                        </div>
+                        <div class="author-card-actions">
+                            <a href="/authors/<%= author.id %>/edit" class="action-button btn-edit">Edit</a>
+                            <button class="action-button btn-delete" onclick="deleteAuthor('<%= author.id %>')">Delete</button>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+            <div class="pagination">
+                <a href="<%= pagination.basePath %>page=<%= pagination.prevPage %>"
+                   class="pagination-link <%= pagination.hasPrevPage ? '' : 'disabled' %>">
+                    &laquo; Prev
+                </a>
+
+                <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+                    <a href="<%= pagination.basePath %>page=<%= i %>"
+                       class="pagination-link <%= i === pagination.currentPage ? 'active' : '' %>">
+                        <%= i %>
+                    </a>
+                <% } %>
+
+                <a href="<%= pagination.basePath %>page=<%= pagination.nextPage %>"
+                   class="pagination-link <%= pagination.hasNextPage ? '' : 'disabled' %>">
+                    Next &raquo;
+                </a>
+            </div>
+
+        <% } else { %>
+            <p class="no-authors-found">
+                No authors found<%= searchQuery ? ` for "${searchQuery}"` : '' %>. Try adjusting your search or add a new author!
+            </p>
         <% } %>
     </div>
-</div>
 
-<script>
-function deleteAuthor(id){
-    if(confirm('Are you sure you want to delete this author?')){
-        fetch(`/authors/${id}/delete`,{method:'POST'}).then(()=>location.reload());
-    }
-}
-</script>
+    <script>
+        function deleteAuthor(id) {
+            if (confirm('Are you sure you want to delete this author? This action cannot be undone.')) {
+                fetch(`/authors/${id}/delete`, {
+                    method: 'POST', 
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert('Author deleted successfully!');
+                        location.reload();
+                    } else {
+                        alert(`Failed to delete author: ${data.message || 'Unknown error'}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting author:', error);
+                    alert('An error occurred while deleting the author. Please try again.');
+                });
+            }
+        }
+    </script>
+</body>
+</html>

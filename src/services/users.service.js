@@ -1,51 +1,65 @@
-import db  from '../db/knex.js';
+import db from '../db/knex.js';
 import { ApiError } from '../helpers/errorMessage.js';
 
 export const UserService = {
-  async getAll({ query, page = 1, limit = 10 } = {}) {
+   async getAll({ query, page = 1, limit = 10 } = {}) {
     const pageN = parseInt(page);
     const limitN = parseInt(limit);
     if (isNaN(pageN) || pageN < 1) {
-      throw new ApiError(401, 'Invalid page number');
+      throw new ApiError(400, 'Invalid page number');
     }
     if (isNaN(limitN) || limitN < 1) {
-      throw new ApiError(401, 'Invalid limit');
+      throw new ApiError(400, 'Invalid limit'); 
     }
     const offset = (pageN - 1) * limitN;
-    const columns = await db('users')
-      .columnInfo()
-      .then((info) =>
-        Object.entries(info)
-          .filter(([col]) =>
-            ['character varying', 'varchar', 'text'].includes(col.type),
-          )
-          .map(([name]) => name),
-      );
+    const searchableColumns = ['username', 'role', 'first_name', 'last_name', 'address', 'email'];
+
     return db('users')
       .modify((qb) => {
         if (query) {
+          const searchTerm = `%${query}%`; 
           qb.where((builder) => {
-            columns.forEach((col, index) => {
+            searchableColumns.forEach((col, index) => {
               if (index === 0) {
-                builder.whereILike(col, `%${query}%`);
+                builder.whereILike(col, searchTerm);
               } else {
-                builder.orWhereILike(col, `%${query}%`);
+                builder.orWhereILike(col, searchTerm);
               }
             });
           });
         }
       })
-      .limit(limit)
+      .limit(limitN) 
       .offset(offset)
       .orderBy('created_at', 'desc');
+  },
+  async countAll({ query } = {}) {
+    const searchableColumns = ['username', 'role', 'first_name', 'last_name', 'address', 'email'];
+    const [countResult] = await db('users')
+      .modify((qb) => {
+        if (query) {
+          const searchTerm = `%${query}%`;
+          qb.where((builder) => {
+            searchableColumns.forEach((col, index) => {
+              if (index === 0) {
+                builder.whereILike(col, searchTerm);
+              } else {
+                builder.orWhereILike(col, searchTerm);
+              }
+            });
+          });
+        }
+      })
+      .count('id as count');
+    return parseInt(countResult.count);
   },
 
   async getById(id) {
     const user = await db('users').where({ id }).first();
-    if(!user){
-      throw new ApiError(404, 'NOT FOUND SUCH A USER ID')
+    if (!user) {
+      throw new ApiError(404, 'NOT FOUND SUCH A USER ID');
     }
-    return user
+    return user;
   },
 
   async create(data) {

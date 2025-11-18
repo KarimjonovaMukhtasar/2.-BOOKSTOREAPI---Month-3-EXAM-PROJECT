@@ -16,9 +16,7 @@ export const authGuard = async (req, res, next) => {
     }
 
     if (!token) {
-      return next(
-        new ApiError(401, 'UNAUTHORIZED: Please login or register first.'),
-      );
+     throw new ApiError(401, 'UNAUTHORIZED: Please login or register first.')
     }
     if (token.startsWith('"') && token.endsWith('"')) {
       token = token.slice(1, -1);
@@ -28,7 +26,7 @@ export const authGuard = async (req, res, next) => {
     try {
       validToken = verifyToken(token, config.jwt.accessSecret);
     } catch (err) {
-      return next(new ApiError(401, `INVALID OR EXPIRED TOKEN!`, err.message));
+      throw new ApiError(401, `INVALID OR EXPIRED TOKEN!`, err.message);
     }
     const user = await db('users')
       .select('*')
@@ -36,11 +34,16 @@ export const authGuard = async (req, res, next) => {
       .first();
 
     if (!user) {
-      return next(new ApiError(404, 'User not found for the given token.'));
+      throw new ApiError(404, 'User not found for the given token.');
     }
     req.user = user;
     next();
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    return res.status(err.status || 500).render('errors', {
+      message: err.message,
+      errors: null,
+      user: req.user,
+      redirect: '/home'
+    });
   }
 };

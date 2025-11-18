@@ -1,7 +1,6 @@
 import logger from '../utils/logger.js';
 
 export const errorHandler = async (err, req, res, next) => {
-  console.log(err);
   logger.error('Unhandled error', {
     message: err.message,
     stack: err.stack,
@@ -11,8 +10,10 @@ export const errorHandler = async (err, req, res, next) => {
     userId: req.user?.id,
   });
   next();
-  return res.send({
-    success: false,
-    message: err.message || `INTERNAL SERVER ERROR!`,
-  });
+  return res.status(err.status || 500).render('errors', {
+      message: err.message,
+      errors: null,
+      user: req.user,
+      redirect: '/home'
+    });
 };

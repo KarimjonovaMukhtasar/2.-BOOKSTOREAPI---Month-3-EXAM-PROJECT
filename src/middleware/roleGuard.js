@@ -13,16 +13,19 @@ export const roleGuard = (...roles) => {
       }
       const userRole = req.user.role;
       if (!roles.includes(userRole)) {
-        return next(
-          new ApiError(
+        throw new ApiError(
             403,
             'FORBIDDEN, YOUR ROLE HAS BEEN DENIED FOR THIS ACCESS!',
-          ),
-        );
+          )
       }
       next();
-    } catch (error) {
-      return next(new ApiError(500, `ERROR WITH ROLE GUARD!`, error.message));
+    } catch (err) {
+      return res.status(err.status || 500).render('errors', {
+      message: err.message,
+      errors: null,
+      user: req.user,
+      redirect: '/home'
+    });
     }
   };
 };

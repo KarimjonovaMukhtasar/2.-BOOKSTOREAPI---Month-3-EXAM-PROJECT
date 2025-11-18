@@ -1,38 +1,47 @@
 import { ApiError } from '../helpers/errorMessage.js';
 import { AuthorService } from '../services/authors.service.js';
-import db from '../db/knex.js';
+import logger from '../utils/logger.js';
 
 const getAllAuthors = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 5;
-
-    const authors = await AuthorService.getAll({ page, limit, query: req.query.query });
-
-    const [countResult] = await db('authors').count('id as count');
-    const totalAuthors = parseInt(countResult.count);
+    const searchQuery = req.query.query || '';
+    const authors = await AuthorService.getAll({
+      page,
+      limit,
+      query: searchQuery,
+    });
+    const totalAuthors = await AuthorService.countAll({ query: searchQuery });
     const totalPages = Math.ceil(totalAuthors / limit);
-
     const pagination = {
       currentPage: page,
       totalPages,
       prevPage: page > 1 ? page - 1 : null,
       nextPage: page < totalPages ? page + 1 : null,
+      basePath: `/authors?query=${encodeURIComponent(searchQuery)}&`,
+      hasPrevPage: page > 1,
+      hasNextPage: page < totalPages
     };
-
     res.render('authors/getAllAuthors', {
       user: req.user || null,
       authors,
-      message: authors.length > 0 ? 'SUCCESSFULLY RETRIEVED ALL AUTHORS' : 'NO AUTHORS FOUND',
+      message:
+        authors.length > 0
+          ? 'SUCCESSFULLY RETRIEVED ALL AUTHORS'
+          : `NO AUTHORS FOUND ${searchQuery ? `for "${searchQuery}"` : ''}`,
       errors: null,
       pagination,
+      searchQuery,
     });
   } catch (err) {
+    logger.error('Error in getAllAuthors:', err); 
     return res.status(err.status || 500).render('errors', {
       message: err.message || 'Something went wrong',
       errors: null,
-      user: req.user || null,
-      redirect: '/authors/getAllAuthors',
+      user: req.user,
+      redirect: '/authors',
+      searchQuery: req.query.query || '', 
     });
   }
 };
@@ -46,14 +55,14 @@ const getAuthorById = async (req, res) => {
       message: 'SUCCESSFULLY RETRIEVED ONE AUTHOR FROM DATABASE',
       author,
       title: 'SEARCHED AUTHOR',
-      user: req.user || null,
+      user: req.user,
       errors: null,
     });
   } catch (err) {
     return res.status(err.status || 500).render('errors', {
       message: err.message || 'Something went wrong',
       errors: null,
-      user: req.user || null,
+      user: req.user,
       redirect: '/authors/getAllAuthors',
     });
   }
@@ -64,7 +73,7 @@ const getCreateAuthorPage = async (req, res) => {
     message: null,
     data: { name: '', bio: '', birth_date: '' },
     title: 'CREATE A NEW AUTHOR',
-    user: req.user || null,
+    user: req.user ,
     errors: null,
   });
 };
@@ -76,7 +85,7 @@ const createAuthor = async (req, res) => {
       message: 'SUCCESSFULLY CREATED AN AUTHOR!',
       data: newAuthor,
       title: 'A NEW AUTHOR',
-      user: req.user || null,
+      user: req.user,
       errors: null,
     });
   } catch (err) {
@@ -88,15 +97,15 @@ const createAuthor = async (req, res) => {
       return res.render('authors/createAuthor', {
         title: 'CREATE A NEW AUTHOR',
         message: null,
-        data: req.validatedData || null,
-        user: req.user || null,
+        data: req.validatedData,
+        user: req.user ,
         errors: formattedErrors,
       });
     }
     return res.status(err.status || 500).render('errors', {
       message: err.message || 'Something went wrong',
       errors: null,
-      user: req.user || null,
+      user: req.user ,
       redirect: '/authors/createAuthor',
     });
   }
@@ -111,14 +120,14 @@ const getEditAuthorPage = async (req, res) => {
       message: null,
       data: author,
       title: 'EDIT AUTHOR',
-      user: req.user || null,
+      user: req.user,
       errors: null,
     });
   } catch (err) {
     return res.status(err.status || 500).render('errors', {
       message: err.message || 'Something went wrong',
       errors: null,
-      user: req.user || null,
+      user: req.user,
       redirect: '/authors',
     });
   }
@@ -135,7 +144,7 @@ const updateAuthor = async (req, res) => {
       message: 'AUTHOR updated successfully!',
       data: updated,
       title: 'EDIT AUTHOR',
-      user: req.user || null,
+      user: req.user,
       errors: null,
     });
   } catch (err) {
@@ -148,14 +157,14 @@ const updateAuthor = async (req, res) => {
         message: null,
         data: req.validatedData,
         title: 'EDIT AUTHOR',
-        user: req.user || null,
+        user: req.user,
         errors: formattedErrors,
       });
     }
     return res.status(err.status || 500).render('errors', {
       message: err.message || 'Something went wrong',
       errors: null,
-      user: req.user || null,
+      user: req.user,
       redirect: '/authors',
     });
   }
@@ -172,7 +181,7 @@ const deleteAuthor = async (req, res) => {
     return res.status(err.status || 500).render('errors', {
       message: err.message || 'Something went wrong',
       errors: null,
-      user: req.user || null,
+      user: req.user,
       redirect: '/authors',
     });
   }
