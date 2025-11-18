@@ -1,4 +1,4 @@
-import db  from '../db/knex.js';
+import db from '../db/knex.js';
 import { ApiError } from '../helpers/errorMessage.js';
 
 export const AuthorService = {
@@ -6,50 +6,65 @@ export const AuthorService = {
     const pageN = parseInt(page);
     const limitN = parseInt(limit);
     if (isNaN(pageN) || pageN < 1) {
-      throw new ApiError(401, 'Invalid page number');
+      throw new ApiError(400, 'Invalid page number');
     }
     if (isNaN(limitN) || limitN < 1) {
-      throw new ApiError(401, 'Invalid limit');
+      throw new ApiError(400, 'Invalid limit'); 
     }
     const offset = (pageN - 1) * limitN;
-    const columns = await db('authors')
-      .columnInfo()
-      .then((info) =>
-        Object.entries(info)
-          .filter(([col]) =>
-            ['character varying', 'varchar', 'text'].includes(col.type),
-          )
-          .map(([name]) => name),
-      );
+    const searchableColumns = ['name', 'bio'];
+
     return db('authors')
       .modify((qb) => {
         if (query) {
+          const searchTerm = `%${query}%`; 
           qb.where((builder) => {
-            columns.forEach((col, index) => {
+            searchableColumns.forEach((col, index) => {
               if (index === 0) {
-                builder.whereILike(col, `%${query}%`);
+                builder.whereILike(col, searchTerm);
               } else {
-                builder.orWhereILike(col, `%${query}%`);
+                builder.orWhereILike(col, searchTerm);
               }
             });
           });
         }
       })
-      .limit(limit)
+      .limit(limitN) 
       .offset(offset)
       .orderBy('created_at', 'desc');
+  },
+  async countAll({ query } = {}) {
+    const searchableColumns = ['name', 'bio'];
+
+    const [countResult] = await db('authors')
+      .modify((qb) => {
+        if (query) {
+          const searchTerm = `%${query}%`;
+
+          qb.where((builder) => {
+            searchableColumns.forEach((col, index) => {
+              if (index === 0) {
+                builder.whereILike(col, searchTerm);
+              } else {
+                builder.orWhereILike(col, searchTerm);
+              }
+            });
+          });
+        }
+      })
+      .count('id as count');
+    return parseInt(countResult.count);
   },
 
   async getById(id) {
     const author = await db('authors').where({ id }).first();
-    if(!author){
-      throw new ApiError(404, 'NOT FOUND SUCH AN AUTHOR ID')
+    if (!author) {
+      throw new ApiError(404, 'NOT FOUND SUCH AN AUTHOR ID');
     }
-    return author
+    return author;
   },
 
   async create(data) {
-    
     const existing = await db('authors').where({ name: data.name }).first();
     if (existing) {
       throw new ApiError(401, 'Author with this name already exists');

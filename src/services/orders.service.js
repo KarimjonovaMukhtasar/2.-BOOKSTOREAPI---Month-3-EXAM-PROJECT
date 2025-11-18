@@ -1,4 +1,4 @@
-import db  from '../db/knex.js';
+import db from '../db/knex.js';
 import { ApiError } from '../helpers/errorMessage.js';
 
 export const OrderService = {
@@ -42,43 +42,66 @@ export const OrderService = {
 
   async getById(id) {
     const order = await db('orders').where({ id }).first();
-    if(!order){
-      throw new ApiError(404, 'NOT FOUND SUCH AN ORDER ID')
+    if (!order) {
+      throw new ApiError(404, 'NOT FOUND SUCH AN ORDER ID');
     }
-    return order
+    return order;
   },
 
- async create(data) {
-  return await db.transaction(async (trx) => {
-    let totalPrice = 0;
-    for (const item of data.items) {
-      const book = await trx('books').where({ id: item.book_id }).first();
-      if (!book) throw new ApiError(404, `Book not found: ${item.book_id}`);
-      if (book.stock < item.quantity)
-        throw new ApiError(
-          400,
-          `Not enough stock for ${book.title}. Requested: ${item.quantity}, available: ${book.stock}`
-        );
-
-      totalPrice += book.price * item.quantity;
-      await trx('books').where({ id: book.id }).update({
-        stock: book.stock - item.quantity,
+  async create(data) {
+    return await db.transaction(async (trx) => {
+      let totalPrice = 0;
+      const orderItems = [];
+      for (const item of data.items) {
+        const book = await trx('books').where({ id: item.book_id }).first();
+        if (!book) {
+          throw new ApiError(404, `Book not found: ${item.book_id}`);
+        }
+        if (book.stock < item.quantity) {
+          throw new ApiError(
+            400,
+            `Not enough stock for ${book.title}. Requested: ${item.quantity}, available: ${book.stock}`,
+          );
+        }
+        if (book.status === 'out of stock') {
+          throw new ApiError(
+            400,
+            `Not enough stock for ${book.title}. Requested: ${item.quantity}, Book status: ${book.status}`,
+          );
+        }
+        if (book.status === 'discontinued') {
+          throw new ApiError(
+            400,
+            `THIS BOOK ${book.title} is no longer being printed! Sorry, Book status: ${book.status}`,
+          );
+        }
+        if (book.stock === item.quantity) {
+          book.status = 'out of stock';
+        }
+        totalPrice += book.price * item.quantity;
+        await trx('books')
+          .where({ id: item.book_id })
+          .update({
+            stock: book.stock - item.quantity,
+            status: book.status,
+          });
+        orderItems.push({
+          book_id: item.book_id,
+          quantity: item.quantity,
+        });
+      }
+      const newOrder = await trx('orders').insert({
+        user_id: data.user_id,
+        total_price: totalPrice,
+        items: JSON.stringify(orderItems),
+        status: 'completed'
       });
-    }
-    const [newOrder] = await trx('orders').insert({
-      user_id: data.user_id,
-      total_price: totalPrice,
-    }).returning('*');
-    for (const item of data.items) {
-      const book = await trx('books').where({ id: item.book_id }).first();
-      await trx('order_items').insert({
-        order_id: newOrder.id,
-        book_id: item.book_id,
-        quantity: item.quantity,
-        price: book.price,
-      });
-    }
-
-    return newOrder;
-  });
-}}
+      if (newOrder) {
+        newOrder.user = await trx('users')
+          .where({ id: data.user_id })
+          .first();
+      }
+      return newOrder;
+    });
+  },
+};

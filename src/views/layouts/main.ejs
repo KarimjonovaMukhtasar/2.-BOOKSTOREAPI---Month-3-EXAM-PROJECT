@@ -38,7 +38,7 @@
 
         nav {
             display: flex;
-            justify-content: space-between;
+            justify-content: space-around;
             align-items: center;
             flex-wrap: wrap;
             max-width: 1200px;
@@ -46,29 +46,63 @@
             padding: 0 20px;
         }
 
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* Left and Right Links */
         .nav-left,
         .nav-right {
             display: flex;
-            align-items: center;
-            gap: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
+        /* Links Styling */
         nav a,
         .header-link {
             color: #fff;
             text-decoration: none;
             font-weight: 500;
-            padding: 8px 15px;
-            border-radius: 5px;
+            padding: 10px 18px;
+            border-radius: 6px;
             transition: all 0.3s ease;
+            font-size: 14px;
         }
 
+        /* Hover Effect */
         nav a:hover,
         .header-link:hover {
             background-color: #007bff;
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.4);
         }
+
+        /* Responsive Design */
+        @media (max-width: 900px) {
+            nav {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .nav-left,
+            .nav-right {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .nav-left a,
+            .nav-right a {
+                width: 100%;
+                text-align: centre;
+                padding: 12px 15px;
+            }
+        }
+
 
         /* MAIN AREA */
         main {
@@ -316,31 +350,48 @@
         }
 
         body {
-    margin: 0; /* Remove default body margin */
-    padding: 0; /* Remove default body padding */
-    width: 100%; /* Ensure body takes full width */
-    min-height: 100vh; /* Make body at least full viewport height */
-    display: flex; /* Often body is flex container for header, main, footer */
-    flex-direction: column; /* Stack children vertically */
-}
+            margin: 0;
+            /* Remove default body margin */
+            padding: 0;
+            /* Remove default body padding */
+            width: 100%;
+            /* Ensure body takes full width */
+            min-height: 100vh;
+            /* Make body at least full viewport height */
+            display: flex;
+            /* Often body is flex container for header, main, footer */
+            flex-direction: column;
+            /* Stack children vertically */
+        }
 
-main {
-    flex-grow: 1; /* Allow main to take up available vertical space */
-    width: 100%; /* Ensure main takes full width */
-    padding: 0; /* Remove any default padding that might be shrinking content */
-    display: flex; /* Make main a flex container */
-    justify-content: center; /* Center its immediate child horizontally */
-    align-items: flex-start; /* Align child to the top, or center if you want vertical centering */
-}
+        main {
+            flex-grow: 1;
+            /* Allow main to take up available vertical space */
+            width: 100%;
+            /* Ensure main takes full width */
+            padding: 0;
+            /* Remove any default padding that might be shrinking content */
+            display: flex;
+            /* Make main a flex container */
+            justify-content: center;
+            /* Center its immediate child horizontally */
+            align-items: flex-start;
+            /* Align child to the top, or center if you want vertical centering */
+        }
 
-/* Add this to ensure the form-card itself is not restricting width unnecessarily */
-.form-card {
-    width: 100%; /* Ensure the card container takes full width of its parent (main) */
-    max-width: 1200px; /* Optional: Set a max-width to prevent content from stretching too wide on very large screens */
-    margin: 0 auto; /* Center the form-card if max-width is applied */
-    padding: 20px; /* Keep your existing padding */
-    box-sizing: border-box; /* Include padding in width calculation */
-}
+        /* Add this to ensure the form-card itself is not restricting width unnecessarily */
+        .form-card {
+            width: 100%;
+            /* Ensure the card container takes full width of its parent (main) */
+            max-width: 1200px;
+            /* Optional: Set a max-width to prevent content from stretching too wide on very large screens */
+            margin: 0 auto;
+            /* Center the form-card if max-width is applied */
+            padding: 20px;
+            /* Keep your existing padding */
+            box-sizing: border-box;
+            /* Include padding in width calculation */
+        }
 
         /* Adjust spacing for smaller screens */
         @media (max-width: 768px) {

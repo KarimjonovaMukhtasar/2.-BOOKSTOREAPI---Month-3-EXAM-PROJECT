@@ -2,7 +2,7 @@ import express from 'express';
 import { MainRouter } from './routers/index.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { config } from './config/index.js';
-import  {createDefaultAdmins}  from './helpers/defaultAdmins.js';
+import { createDefaultAdmins } from './helpers/defaultAdmins.js';
 import morgan from 'morgan';
 import { logger } from './utils/logger.js';
 import path from 'path';
@@ -11,12 +11,13 @@ import 'dotenv/config';
 import cookieParser from 'cookie-parser';
 
 const PORT = config.db.PORT || 5050;
-createDefaultAdmins()
+createDefaultAdmins();
 const app = express();
 app.set('view engine', 'ejs');
 app.set('views', path.join(process.cwd(), 'src', 'views'));
 app.use(expressLayouts);
 app.set('layout', 'layouts/main');
+express.urlencoded({ extended: true })
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());

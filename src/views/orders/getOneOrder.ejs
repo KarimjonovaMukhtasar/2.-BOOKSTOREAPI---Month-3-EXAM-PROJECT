@@ -1,45 +1,307 @@
-<style>
-.one-order-container {
-    max-width: 800px;
-    margin: 40px auto;
-    padding: 20px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-}
-.one-order-container h2 { text-align:center; color:#3f51b5; margin-bottom:15px; }
-.one-order-container p { margin:5px 0; }
-.items-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-.items-table th, .items-table td { border:1px solid #ddd; padding:8px; text-align:left; }
-.items-table th { background-color:#f2f2f2; }
-.actions { margin-top:20px; display:flex; gap:10px; }
-.actions button { flex:1; padding:10px; border:none; border-radius:5px; cursor:pointer; color:white; }
-.btn-back{background-color:#6c757d;} .btn-back:hover{background-color:#5a6268;}
-.btn-edit{background-color:#28a745;} .btn-edit:hover{background-color:#218838;}
-</style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details - <%= order.id.substring(0, 8) %></title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #3f51b5; /* Indigo */
+            --primary-blue-dark: #303f9f;
+            --accent-green: #4CAF50;
+            --accent-green-dark: #388E3C;
+            --accent-grey: #6c757d;
+            --accent-grey-dark: #5a6268;
+            --text-color-dark: #333;
+            --text-color-light: #555;
+            --border-color: #e0e0e0;
+            --bg-light: #f8f9fa;
+            --card-bg: #ffffff;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
 
-<div class="one-order-container">
-    <h2>Order ID: <%= order.id %></h2>
-    <p><strong>User:</strong> <%= order.user.username %> (<%= order.user.email %>)</p>
-    <p><strong>Total Price:</strong> $<%= typeof order.total_price==='number'?order.total_price.toFixed(2):order.total_price %></p>
-    <p><strong>Status:</strong> <%= order.status %></p>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-light);
+            color: var(--text-color-dark);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Center vertically */
+            box-sizing: border-box;
+        }
 
-    <h3>Items:</h3>
-    <table class="items-table">
-        <tr>
-            <th>Book ID</th>
-            <th>Quantity</th>
-        </tr>
-        <% order.items.forEach(item => { %>
-        <tr>
-            <td><%= item.book_id %></td>
-            <td><%= item.quantity %></td>
-        </tr>
-        <% }) %>
-    </table>
+        .order-detail-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px var(--shadow);
+            padding: 35px;
+            max-width: 700px;
+            width: 100%;
+            animation: fadeIn 0.5s ease-out;
+            border: 1px solid var(--border-color);
+        }
 
-    <div class="actions">
-        <button class="btn-edit" onclick="location.href='/orders/<%= order.id %>/edit'">Edit Order</button>
-        <button class="btn-back" onclick="location.href='/orders'">Back</button>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .order-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+
+        .order-header h2 {
+            color: var(--primary-blue);
+            margin: 0;
+            font-size: 2.2em;
+            font-weight: 700;
+        }
+
+        .order-header span {
+            display: block;
+            margin-top: 8px;
+            font-size: 0.95em;
+            color: var(--text-color-light);
+        }
+
+        .detail-group {
+            margin-bottom: 20px;
+            padding: 15px 0;
+            border-bottom: 1px dashed var(--border-color);
+        }
+
+        .detail-group:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .detail-group p {
+            margin: 0;
+            font-size: 1.05em;
+            padding: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .detail-group p strong {
+            color: var(--text-color-dark);
+            font-weight: 500;
+            flex-shrink: 0; /* Prevent strong from shrinking */
+            margin-right: 10px;
+        }
+
+        .detail-group p span {
+            text-align: right;
+            color: var(--text-color-light);
+            flex-grow: 1; /* Allow span to take remaining space */
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 10px; /* Space from 'Status' label */
+        }
+
+        /* Status colors */
+        .status-pending { background-color: #fff3e0; color: #fb8c00; } /* Amber light */
+        .status-completed { background-color: #e8f5e9; color: #43A047; } /* Green light */
+        .status-cancelled { background-color: #ffebee; color: #e53935; } /* Red light */
+        .status-shipped { background-color: #e3f2fd; color: #1e88e5; } /* Blue light */
+        .status-processing { background-color: #e0f2f7; color: #03a9f4; } /* Light blue */
+
+
+        h3 {
+            color: var(--primary-blue);
+            margin-top: 35px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: separate; /* Use separate to allow border-radius on cells */
+            border-spacing: 0;
+            margin-top: 20px;
+            font-size: 0.95em;
+        }
+
+        .items-table th, .items-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .items-table th {
+            background-color: var(--bg-light);
+            color: var(--text-color-dark);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .items-table tr:last-child td {
+            border-bottom: none;
+        }
+        .items-table tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .actions {
+            margin-top: 35px;
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end; /* Align buttons to the right */
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: white;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none; /* For button acting as link */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-back {
+            background-color: var(--accent-grey);
+        }
+        .btn-back:hover {
+            background-color: var(--accent-grey-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .btn-edit {
+            background-color: var(--accent-green);
+        }
+        .btn-edit:hover {
+            background-color: var(--accent-green-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+        @media (max-width: 600px) {
+            .order-detail-card {
+                padding: 20px;
+                margin: 20px auto;
+            }
+            .order-header h2 {
+                font-size: 1.8em;
+            }
+            .detail-group p {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .detail-group p strong {
+                margin-bottom: 5px;
+            }
+            .detail-group p span {
+                text-align: left;
+            }
+            .actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="order-detail-card">
+        <div class="order-header">
+            <h2>Order Details</h2>
+            <span>Order ID: <%= order.id %></span>
+        </div>
+
+        <div class="detail-group">
+            <p>
+                <strong>User:</strong>
+                <% if (order.user && order.user.username) { %>
+                    <span><%= order.user.username %> (<%= order.user.email %>)</span>
+                <% } else if (order.user_id) { %>
+                    <span>User ID: <%= order.user_id %> (Details unavailable)</span>
+                <% } else { %>
+                    <span>User information not available</span>
+                <% } %>
+            </p>
+            <p>
+                <strong>Total Price:</strong>
+                <span>$<%= typeof order.total_price === 'number' ? order.total_price.toFixed(2) : order.total_price %></span>
+            </p>
+            <p>
+                <strong>Status:</strong>
+                <span>
+                    <span class="status-badge status-<%= order.status.toLowerCase().replace(/\s/g, '-') %>">
+                        <%= order.status %>
+                    </span>
+                </span>
+            </p>
+            <% if (order.created_at) { %>
+                <p>
+                    <strong>Order Date:</strong>
+                    <span><%= new Date(order.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></span>
+                </p>
+            <% } %>
+            <% if (order.updated_at && order.updated_at !== order.created_at) { %>
+                <p>
+                    <strong>Last Updated:</strong>
+                    <span><%= new Date(order.updated_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></span>
+                </p>
+            <% } %>
+        </div>
+
+        <h3>Order Items</h3>
+        <% if (order.items && order.items.length > 0) { %>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Book ID</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% order.items.forEach(item => { %>
+                    <tr>
+                        <td><%= item.book_id %></td>
+                        <td><%= item.quantity %></td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } else { %>
+            <p style="text-align: center; color: var(--text-color-light); margin-top: 20px;">No items found for this order.</p>
+        <% } %>
+
+        <div class="actions">
+            <a href="/orders" class="btn btn-back">Back to Orders</a>
+        </div>
     </div>
-</div>
+
+</body>
+</html>

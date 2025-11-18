@@ -6,7 +6,11 @@ const getAllOrders = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = 5;
 
-    const orders = await OrderService.getAll({ page, limit, query: req.query.query });
+    const orders = await OrderService.getAll({
+      page,
+      limit,
+      query: req.query.query,
+    });
 
     const [countResult] = await db('orders').count('id as count');
     const totalOrders = parseInt(countResult.count);
@@ -22,7 +26,10 @@ const getAllOrders = async (req, res) => {
     res.render('orders/getAllOrders', {
       user: req.user,
       orders,
-      message: orders.length > 0 ? 'SUCCESSFULLY RETRIEVED ALL Orders' : 'NO Order FOUND',
+      message:
+        orders.length > 0
+          ? 'SUCCESSFULLY RETRIEVED ALL Orders'
+          : 'NO Order FOUND',
       errors: null,
       pagination,
     });
@@ -52,8 +59,8 @@ const getOrderById = async (req, res) => {
     return res.status(err.status || 500).render('errors', {
       message: err.message || 'Something went wrong',
       errors: null,
-      user: req.user ,
-      redirect: '/orders/getAllOrders',
+      user: req.user,
+      redirect: `/orders`,
     });
   }
 };
@@ -61,7 +68,7 @@ const getOrderById = async (req, res) => {
 const getCreateOrderPage = async (req, res) => {
   return res.render('orders/createOrder', {
     message: null,
-    data: { user_id: req.user.id , items: '', total_price: ''},
+    data: { user_id: req.user.id, items: '', total_price: '' },
     title: 'CREATE A NEW Order',
     user: req.user,
     errors: null,
@@ -70,7 +77,7 @@ const getCreateOrderPage = async (req, res) => {
 
 const createOrder = async (req, res) => {
   try {
-    const data = {...req.validatedData, user_id: req.user.id}
+    const data = { ...req.validatedData, user_id: req.user.id };
     const newOrder = await OrderService.create(data);
     return res.render('orders/createOrder', {
       message: 'SUCCESSFULLY CREATED AN Order!',
@@ -88,7 +95,7 @@ const createOrder = async (req, res) => {
       return res.render('orders/createOrder', {
         title: 'CREATE A NEW Order',
         message: null,
-        data: req.validatedData || null,
+        data: req.validatedData ,
         user: req.user,
         errors: formattedErrors,
       });
@@ -97,13 +104,8 @@ const createOrder = async (req, res) => {
       message: err.message || 'Something went wrong',
       errors: null,
       user: req.user,
-      redirect: '/orders/getAllOrders',
+      redirect: '/orders/createOrder',
     });
   }
 };
-export {
-  getAllOrders,
-  getOrderById,
-  getCreateOrderPage,
-  createOrder
-};
+export { getAllOrders, getOrderById, getCreateOrderPage, createOrder };

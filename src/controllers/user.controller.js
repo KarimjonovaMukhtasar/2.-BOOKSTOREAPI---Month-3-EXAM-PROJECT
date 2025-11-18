@@ -1,38 +1,47 @@
 import { ApiError } from '../helpers/errorMessage.js';
 import { UserService } from '../services/users.service.js';
-import db from '../db/knex.js';
+import logger from '../utils/logger.js';
 
 const getAllUsers = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 5;
-
-    const users = await UserService.getAll({ page, limit, query: req.query.query });
-
-    const [countResult] = await db('users').count('id as count');
-    const totalUsers = parseInt(countResult.count);
+    const searchQuery = req.query.query || '';
+    const users = await UserService.getAll({
+      page,
+      limit,
+      query: searchQuery,
+    });
+    const totalUsers = await UserService.countAll({ query: searchQuery });
     const totalPages = Math.ceil(totalUsers / limit);
-
     const pagination = {
       currentPage: page,
       totalPages,
       prevPage: page > 1 ? page - 1 : null,
       nextPage: page < totalPages ? page + 1 : null,
+      basePath: `/users?query=${encodeURIComponent(searchQuery)}&`,
+      hasPrevPage: page > 1,
+      hasNextPage: page < totalPages
     };
-
     res.render('users/getAllUsers', {
-      user: req.user ,
+      user: req.user,
       users,
-      message: users.length > 0 ? 'SUCCESSFULLY RETRIEVED ALL USERS' : 'NO USER FOUND',
+      message:
+        users.length > 0
+          ? 'SUCCESSFULLY RETRIEVED ALL USERS'
+          : `NO USERS FOUND ${searchQuery ? `for "${searchQuery}"` : ''}`,
       errors: null,
       pagination,
+      searchQuery,
     });
   } catch (err) {
+    logger.error('Error in getAllUsers:', err); 
     return res.status(err.status || 500).render('errors', {
       message: err.message || 'Something went wrong',
       errors: null,
       user: req.user,
-      redirect: '/users/getAllUsers',
+      redirect: '/users',
+      searchQuery: req.query.query || '', 
     });
   }
 };
@@ -52,7 +61,7 @@ const getUserById = async (req, res) => {
     return res.status(err.status || 500).render('errors', {
       message: err.message || 'Something went wrong',
       errors: null,
-      user: req.user ,
+      user: req.user,
       redirect: '/Users/getAllUsers',
     });
   }
@@ -61,9 +70,18 @@ const getUserById = async (req, res) => {
 const getCreateUserPage = async (req, res) => {
   return res.render('users/createUser', {
     message: null,
-    data: { email: '', username: '', password: '', last_name: '', first_name: '', phone_number: '', address: '', role: ''},
+    data: {
+      email: '',
+      username: '',
+      password: '',
+      last_name: '',
+      first_name: '',
+      phone_number: '',
+      address: '',
+      role: '',
+    },
     title: 'CREATE A NEW USER',
-    user: req.user || null,
+    user: req.user,
     errors: null,
   });
 };
@@ -88,14 +106,14 @@ const createUser = async (req, res) => {
         title: 'CREATE A NEW USER',
         message: null,
         data: req.validatedData || null,
-        user: req.user || null,
+        user: req.user,
         errors: formattedErrors,
       });
     }
     return res.status(err.status || 500).render('errors', {
       message: err.message || 'Something went wrong',
       errors: null,
-      user: req.user || null,
+      user: req.user,
       redirect: '/users/getAllUsers',
     });
   }
@@ -117,7 +135,7 @@ const getEditUserPage = async (req, res) => {
     return res.status(err.status || 500).render('errors', {
       message: err.message || 'Something went wrong',
       errors: null,
-      user: req.user ,
+      user: req.user,
       redirect: '/users',
     });
   }
@@ -134,7 +152,7 @@ const updateUser = async (req, res) => {
       message: 'User updated successfully!',
       data: updated,
       title: 'EDIT User',
-      user: req.user ,
+      user: req.user,
       errors: null,
     });
   } catch (err) {
@@ -147,14 +165,14 @@ const updateUser = async (req, res) => {
         message: null,
         data: req.validatedData,
         title: 'EDIT User',
-        user: req.user ,
+        user: req.user,
         errors: formattedErrors,
       });
     }
     return res.status(err.status || 500).render('errors', {
       message: err.message || 'Something went wrong',
       errors: null,
-      user: req.user ,
+      user: req.user,
       redirect: '/users',
     });
   }

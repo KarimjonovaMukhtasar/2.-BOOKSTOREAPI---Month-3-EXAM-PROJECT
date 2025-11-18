@@ -1,63 +1,74 @@
 import { ApiError } from '../helpers/errorMessage.js';
 import { BookService } from '../services/books.service.js';
+import logger from '../utils/logger.js';
 
 const getAllBooks = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 10;
-    const { books, totalCount } = await BookService.getAll({ page, limit });
-    const totalPages = Math.ceil(totalCount / limit);
+    const limit = 5;
+    const searchQuery = req.query.query || '';
+    const books = await BookService.getAll({
+      page,
+      limit,
+      query: searchQuery,
+    });
+    const totalBooks = await BookService.countAll({ query: searchQuery });
+    const totalPages = Math.ceil(totalBooks / limit);
     const pagination = {
       currentPage: page,
       totalPages,
       prevPage: page > 1 ? page - 1 : null,
       nextPage: page < totalPages ? page + 1 : null,
+      basePath: `/books?query=${encodeURIComponent(searchQuery)}&`,
+      hasPrevPage: page > 1,
+      hasNextPage: page < totalPages
     };
-
-    return res.render('books/getAllBooks', {
-      message: 'SUCCESSFULLY RETRIEVED ALL THE BOOKS',
+    res.render('books/getAllBooks', {
+      user: req.user ,
       books,
-      title: 'ALL BOOKS',
-      user: req.user,
+      message:
+        books.length > 0
+          ? 'SUCCESSFULLY RETRIEVED ALL BOOKS'
+          : `NO BOOKS FOUND ${searchQuery ? `for "${searchQuery}"` : ''}`,
       errors: null,
-      pagination, 
+      pagination,
+      searchQuery,
     });
   } catch (err) {
+    logger.error('Error in getAllBooks:', err); 
     return res.status(err.status || 500).render('errors', {
       message: err.message || 'Something went wrong',
       errors: null,
       user: req.user,
-      redirect: '/books/getAllBooks',
+      redirect: '/books',
+      searchQuery: req.query.query || '', 
     });
   }
 };
-
 
 const getBookById = async (req, res) => {
   try {
     const { id } = req.params;
     const book = await BookService.getById(id);
-    if (!book){
-      throw new ApiError(404, `NOT FOUND SUCH A BOOK ID!`)
+    if (!book) {
+      throw new ApiError(404, `NOT FOUND SUCH A BOOK ID!`);
     }
     return res.render('books/getOneBook', {
-    message: 'SUCCESSFULLY RETRIEVED ONE BOOK FROM DATABASE',
-    book,
-    title: 'SEARCHED BOOK',
-    user: req.user,
-    errors: null,
-  });
+      message: 'SUCCESSFULLY RETRIEVED ONE BOOK FROM DATABASE',
+      book,
+      title: 'SEARCHED BOOK',
+      user: req.user,
+      errors: null,
+    });
   } catch (err) {
     return res.status(err.status || 500).render('errors', {
       message: err.message || 'Something went wrong',
       errors: null,
-      user: req.user || null,
+      user: req.user,
       redirect: '/books/getAllBooks',
     });
   }
-
 };
-
 
 const getCreateBookPage = async (req, res) => {
   return res.render('books/createBook', {
@@ -73,12 +84,12 @@ const createBook = async (req, res) => {
   try {
     const newBook = await BookService.create(req.validatedData);
     return res.render('books/createBook', {
-    message: 'SUCCESSFULLY CREATED A BOOK!',
-    data: newBook,
-    title: 'A NEW BOOK',
-    user: req.user,
-    errors: null,
-  });
+      message: 'SUCCESSFULLY CREATED A BOOK!',
+      data: newBook,
+      title: 'A NEW BOOK',
+      user: req.user,
+      errors: null,
+    });
   } catch (err) {
     if (err.errors) {
       const formattedErrors = err.errors.map((e) => ({
@@ -89,7 +100,7 @@ const createBook = async (req, res) => {
         title: 'CREATE A NEW BOOK',
         message: null,
         data: null,
-        user: req.user ,
+        user: req.user,
         errors: formattedErrors,
       });
     }
@@ -105,7 +116,7 @@ const createBook = async (req, res) => {
 const getEditBookPage = async (req, res) => {
   try {
     const { id } = req.params;
-    const book = await BookService.getById(id); 
+    const book = await BookService.getById(id);
     if (!book) {
       return res.status(404).render('errors', {
         message: 'Book not found',
@@ -187,7 +198,7 @@ const deleteBook = async (req, res) => {
         redirect: '/books',
       });
     }
-    return res.redirect('/books'); 
+    return res.redirect('/books');
   } catch (err) {
     return res.status(500).render('errors', {
       message: err.message || 'Something went wrong',
@@ -198,5 +209,12 @@ const deleteBook = async (req, res) => {
   }
 };
 
-
-export { getAllBooks, getBookById, getCreateBookPage, getEditBookPage, createBook, updateBook, deleteBook };
+export {
+  getAllBooks,
+  getBookById,
+  getCreateBookPage,
+  getEditBookPage,
+  createBook,
+  updateBook,
+  deleteBook,
+};

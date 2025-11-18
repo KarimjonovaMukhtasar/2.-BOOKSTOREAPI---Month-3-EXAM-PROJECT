@@ -1,4 +1,4 @@
-import db  from '../db/knex.js';
+import db from '../db/knex.js';
 import { ApiError } from '../helpers/errorMessage.js';
 
 export const GenreService = {
@@ -6,46 +6,61 @@ export const GenreService = {
     const pageN = parseInt(page);
     const limitN = parseInt(limit);
     if (isNaN(pageN) || pageN < 1) {
-      throw new ApiError(401, 'Invalid page number');
+      throw new ApiError(400, 'Invalid page number');
     }
     if (isNaN(limitN) || limitN < 1) {
-      throw new ApiError(401, 'Invalid limit');
+      throw new ApiError(400, 'Invalid limit'); 
     }
     const offset = (pageN - 1) * limitN;
-    const columns = await db('genres')
-      .columnInfo()
-      .then((info) =>
-        Object.entries(info)
-          .filter(([col]) =>
-            ['character varying', 'varchar', 'text'].includes(col.type),
-          )
-          .map(([name]) => name),
-      );
+    const searchableColumns = ['name', 'description'];
     return db('genres')
       .modify((qb) => {
         if (query) {
+          const searchTerm = `%${query}%`; 
           qb.where((builder) => {
-            columns.forEach((col, index) => {
+            searchableColumns.forEach((col, index) => {
               if (index === 0) {
-                builder.whereILike(col, `%${query}%`);
+                builder.whereILike(col, searchTerm);
               } else {
-                builder.orWhereILike(col, `%${query}%`);
+                builder.orWhereILike(col, searchTerm);
               }
             });
           });
         }
       })
-      .limit(limit)
+      .limit(limitN) 
       .offset(offset)
       .orderBy('created_at', 'desc');
   },
+  async countAll({ query } = {}) {
+    const searchableColumns = ['name', 'description'];
+
+    const [countResult] = await db('genres')
+      .modify((qb) => {
+        if (query) {
+          const searchTerm = `%${query}%`;
+
+          qb.where((builder) => {
+            searchableColumns.forEach((col, index) => {
+              if (index === 0) {
+                builder.whereILike(col, searchTerm);
+              } else {
+                builder.orWhereILike(col, searchTerm);
+              }
+            });
+          });
+        }
+      })
+      .count('id as count');
+    return parseInt(countResult.count);
+  },
 
   async getById(id) {
-    const genre= await db('genres').where({ id }).first();
-    if(!genre){
-      throw new ApiError(404, 'NOT FOUND SUCH A GENRE ID')
+    const genre = await db('genres').where({ id }).first();
+    if (!genre) {
+      throw new ApiError(404, 'NOT FOUND SUCH A GENRE ID');
     }
-    return genre
+    return genre;
   },
 
   async create(data) {

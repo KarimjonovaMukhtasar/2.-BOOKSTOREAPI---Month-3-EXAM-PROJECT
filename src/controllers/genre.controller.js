@@ -1,38 +1,46 @@
 import { ApiError } from '../helpers/errorMessage.js';
 import { GenreService } from '../services/genres.service.js';
-import db from '../db/knex.js';
-
+import logger from '../utils/logger.js';
 const getAllGenres = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 5;
-
-    const genres = await GenreService.getAll({ page, limit, query: req.query.query });
-
-    const [countResult] = await db('genres').count('id as count');
-    const totalGenres = parseInt(countResult.count);
+    const searchQuery = req.query.query || '';
+    const genres = await GenreService.getAll({
+      page,
+      limit,
+      query: searchQuery,
+    });
+    const totalGenres = await GenreService.countAll({ query: searchQuery });
     const totalPages = Math.ceil(totalGenres / limit);
-
     const pagination = {
       currentPage: page,
       totalPages,
       prevPage: page > 1 ? page - 1 : null,
       nextPage: page < totalPages ? page + 1 : null,
+      basePath: `/genres?query=${encodeURIComponent(searchQuery)}&`,
+      hasPrevPage: page > 1,
+      hasNextPage: page < totalPages
     };
-
     res.render('genres/getAllGenres', {
       user: req.user,
       genres,
-      message: genres.length > 0 ? 'SUCCESSFULLY RETRIEVED ALL GENRES' : 'NO GENRES FOUND',
+      message:
+        genres.length > 0
+          ? 'SUCCESSFULLY RETRIEVED ALL GENRES'
+          : `NO GENRES FOUND ${searchQuery ? `for "${searchQuery}"` : ''}`,
       errors: null,
       pagination,
+      searchQuery,
     });
   } catch (err) {
+    logger.error('Error in getAllGenres:', err); 
     return res.status(err.status || 500).render('errors', {
       message: err.message || 'Something went wrong',
       errors: null,
       user: req.user,
-      redirect: '/genres/getAllGenres',
+      redirect: '/genres',
+      searchQuery: req.query.query || '', 
     });
   }
 };
@@ -53,7 +61,7 @@ const getGenreById = async (req, res) => {
     return res.status(err.status || 500).render('errors', {
       message: err.message || 'Something went wrong',
       errors: null,
-      user: req.user ,
+      user: req.user,
       redirect: '/genres/getAllGenres',
     });
   }
@@ -62,7 +70,7 @@ const getGenreById = async (req, res) => {
 const getCreateGenrePage = async (req, res) => {
   return res.render('genres/createGenre', {
     message: null,
-    data: { name: '', description: ''},
+    data: { name: '', description: '' },
     title: 'CREATE A NEW GENRE',
     user: req.user,
     errors: null,
@@ -135,7 +143,7 @@ const updateGenre = async (req, res) => {
       message: 'GENRE updated successfully!',
       data: updated,
       title: 'EDIT GENRE',
-      user: req.user ,
+      user: req.user,
       errors: null,
     });
   } catch (err) {

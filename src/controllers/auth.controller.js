@@ -134,7 +134,7 @@ const getMe = async (req, res) => {
     return res.status(err.status || 500).render('errors', {
       message: err.message || 'Something went wrong',
       errors: null,
-      user: req.user || null,
+      user: req.user,
       redirect: '/auth/profile',
     });
   }
@@ -160,7 +160,7 @@ const verifyOtp = async (req, res) => {
       title: 'Verify OTP',
       message: null,
       data: null,
-      user: req.user || null,
+      user: req.user,
       errors: err.errors
         ? err.errors.map((e) => ({
             field: e.path ? e.path.join('.') : 'field',
@@ -186,7 +186,7 @@ const logOut = async (req, res) => {
     return res.status(err.status || 500).render('errors', {
       message: err.message || 'Something went wrong',
       errors: null,
-      user: req.user || null,
+      user: req.user ,
       redirect: '/auth/signin',
     });
   }
@@ -197,7 +197,7 @@ const getRefreshTokenPage = (req, res) => {
     message: null,
     data: null,
     title: 'Refresh Token',
-    user: req.user || null,
+    user: req.user,
     errors: null,
   });
 };
@@ -215,7 +215,7 @@ const refreshToken = async (req, res) => {
         title: 'Refresh Token',
         message: tokens.message,
         data: null,
-        user: req.user || null,
+        user: req.user ,
         errors: null,
       });
     }
@@ -228,14 +228,14 @@ const refreshToken = async (req, res) => {
       title: 'Refresh Token',
       message: 'Tokens refreshed successfully!',
       data: null,
-      user: req.user || null,
+      user: req.user,
       errors: null,
     });
   } catch (err) {
     return res.status(err.status || 500).render('errors', {
       message: err.message || 'Something went wrong',
       errors: null,
-      user: req.user || null,
+      user: req.user ,
       redirect: '/auth/refresh-token',
     });
   }

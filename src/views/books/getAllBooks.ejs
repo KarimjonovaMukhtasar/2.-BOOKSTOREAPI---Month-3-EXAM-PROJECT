@@ -1,251 +1,373 @@
-<!-- views/books/show_books.ejs -->
-<style>
-    /* Scoped styles for show_books.ejs */
-    .all-books-container {
-        padding: 20px;
-        background-color: white;
-        border-radius: 8px;
-    }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Books - BookstoreAPI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #3f51b5;
+            --primary-dark: #303f9f;
+            --accent-green: #4CAF50;
+            --accent-green-dark: #388E3C;
+            --accent-red: #f44336;
+            --accent-red-dark: #d32f2f;
+            --text-dark: #333;
+            --text-light: #666;
+            --bg-light: #f8f9fa;
+            --card-bg: #ffffff;
+            --border-color: #e0e0e0;
+            --shadow-light: rgba(0,0,0,0.08);
+            --shadow-medium: rgba(0,0,0,0.15);
+            --border-radius-main: 12px;
+            --border-radius-sm: 8px;
+        }
 
-    .all-books-container h2 {
-        color: #3f51b5;
-        margin-bottom: 10px;
-        text-align: center;
-        font-size: 2em;
-    }
-
-    .all-books-container p {
-        text-align: center;
-        color: #666;
-        margin-bottom: 30px;
-        font-size: 1.1em;
-    }
-
-    .search-bar-container {
-        display: flex;
-        gap: 15px;
-        margin-bottom: 30px;
-        align-items: center;
-    }
-
-    .search-bar-container input {
-        flex-grow: 1;
-        padding: 12px 15px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        font-size: 1em;
-        box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
-    }
-    .search-bar-container input:focus {
-        border-color: #3f51b5;
-        box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.2);
-        outline: none;
-    }
-
-    .btn {
-        padding: 12px 25px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 1em;
-        font-weight: 600;
-        transition: background-color 0.2s ease, transform 0.1s ease;
-    }
-
-    .btn-new {
-        background-color: #007bff; /* Bootstrap-like blue */
-        color: white;
-        white-space: nowrap;
-        padding: 12px 20px;
-    }
-    .btn-new:hover {
-        background-color: #0056b3;
-        transform: translateY(-1px);
-    }
-
-    .book-card-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 25px;
-        margin-top: 30px;
-    }
-
-    .book-card {
-        background-color: #fff;
-        border: 1px solid #eee;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .book-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .book-card-image {
-        width: 100%;
-        height: 220px;
-        object-fit: cover;
-        border-bottom: 1px solid #eee;
-    }
-
-    .book-card-content {
-        padding: 20px;
-        flex-grow: 1;
-    }
-
-    .book-card-content h3 {
-        margin-top: 0;
-        margin-bottom: 12px;
-        color: #3f51b5;
-        font-size: 1.3em;
-        text-align: left;
-        font-weight: 600;
-    }
-
-    .book-card-content p {
-        margin-bottom: 8px;
-        font-size: 0.95em;
-        color: #555;
-        text-align: left;
-    }
-    .book-card-content p strong {
-        color: #333;
-    }
-
-    .book-card-actions {
-        display: flex;
-        justify-content: space-between;
-        padding: 15px 20px;
-        border-top: 1px solid #eee;
-        gap: 10px;
-    }
-
-    .book-card-actions .btn {
-        flex: 1;
-        margin: 0;
-        font-size: 0.9em;
-        padding: 10px 15px;
-    }
-
-    .btn-edit {
-        background-color: #28a745; /* Green */
-        color: white;
-    }
-    .btn-edit:hover {
-        background-color: #218838;
-        transform: translateY(-1px);
-    }
-
-    .btn-delete {
-        background-color: #dc3545; /* Red */
-        color: white;
-    }
-    .btn-delete:hover {
-        background-color: #c82333;
-        transform: translateY(-1px);
-    }
-
-    .pagination {
-        display: flex;
-        justify-content: center;
-        gap: 8px;
-        margin-top: 40px;
-    }
-
-    .pagination button {
-        background-color: #f8f9fa;
-        border: 1px solid #ddd;
-        padding: 10px 18px;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.2s ease, transform 0.1s ease;
-        font-size: 0.95em;
-        color: #555;
-    }
-
-    .pagination button:hover {
-        background-color: #e2e6ea;
-        transform: translateY(-1px);
-    }
-
-    .pagination button.active {
-        background-color: #3f51b5;
-        color: white;
-        border-color: #3f51b5;
-        font-weight: bold;
-    }
-
-    @media (max-width: 768px) {
-        .search-bar-container {
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
             flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            margin: 20px auto;
+            padding: 30px;
+            background: var(--card-bg);
+            border-radius: var(--border-radius-main);
+            box-shadow: 0 10px 30px var(--shadow-medium);
+            border: 1px solid var(--border-color);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .top-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .search-form {
+            display: flex;
+            flex-grow: 1;
             gap: 10px;
+            max-width: 450px;
         }
-        .search-bar-container input, .btn-new {
-            width: 100%;
+
+        .search-input {
+            flex-grow: 1;
+            padding: 12px 18px;
+            border-radius: var(--border-radius-sm);
+            border: 1px solid var(--border-color);
+            font-size: 1em;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
-        .book-card-grid {
-            grid-template-columns: 1fr;
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(63, 81, 181, 0.2);
         }
-        .book-card-actions {
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            color: white;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            box-shadow: 0 4px 10px rgba(63,81,181,0.2);
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: var(--accent-green);
+            box-shadow: 0 4px 10px rgba(76,175,80,0.2);
+        }
+        .btn-success:hover {
+            background-color: var(--accent-green-dark);
+            transform: translateY(-2px);
+        }
+
+        .message-box {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 25px;
+            border: 1px solid #c8e6c9;
+            font-size: 0.95em;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .error-box {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 25px;
+            border: 1px solid #ffcdd2;
+            font-size: 0.95em;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .book-card {
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius-sm);
+            box-shadow: 0 4px 15px var(--shadow-light);
+            padding: 20px;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            display: flex;
             flex-direction: column;
-            gap: 8px;
+            justify-content: space-between;
+            position: relative;
         }
-        .book-card-actions .btn {
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px var(--shadow-medium);
+        }
+
+        .book-card .full-card-link {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
+            height: 100%;
+            z-index: 1;
+            text-decoration: none;
+            color: transparent;
         }
-    }
-</style>
 
-<div class="all-books-container">
-    <h2>All Books</h2>
-    <p>Browse the entire collection with ease.</p>
+        .book-card h3 {
+            margin: 0 0 10px 0;
+            color: var(--primary-color);
+            font-size: 1.4em;
+            font-weight: 600;
+        }
 
-    <div class="search-bar-container">
-        <input type="text" placeholder="Search by title, author, or genre" id="searchInput">
-        <button class="btn btn-new" onclick="location.href='/books/new'">New Book</button>
-    </div>
+        .book-card p {
+            margin: 5px 0;
+            font-size: 0.95em;
+            color: var(--text-light);
+        }
 
-    <div class="book-card-grid">
+        .book-card strong {
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .book-card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .action-button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            color: white;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-edit { background-color: var(--primary-color); }
+        .btn-edit:hover { background-color: var(--primary-dark); transform: translateY(-2px); }
+
+        .btn-delete { background-color: var(--accent-red); }
+        .btn-delete:hover { background-color: var(--accent-red-dark); transform: translateY(-2px); }
+
+        .no-books-found {
+            text-align: center;
+            color: var(--text-light);
+            margin-top: 50px;
+            font-size: 1.1em;
+            padding: 20px;
+            border: 1px dashed var(--border-color);
+            border-radius: var(--border-radius-sm);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-sm);
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            min-width: 40px;
+            background-color: var(--card-bg);
+        }
+
+        .pagination-link:hover {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(63, 81, 181, 0.2);
+        }
+
+        .pagination-link.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination-link.disabled {
+            background-color: #f0f0f0;
+            color: var(--text-light);
+            cursor: not-allowed;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .top-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-form {
+                max-width: 100%;
+                width: 100%;
+            }
+            .btn-new-book {
+                width: 100%;
+                text-align: center;
+            }
+            .books-grid {
+                grid-template-columns: 1fr;
+            }
+            .book-card-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>All Books</h1>
+
+        <div class="top-controls">
+            <form action="/books" method="GET" class="search-form">
+                <input type="text" name="query" placeholder="Search books..." class="search-input" value="<%= searchQuery || '' %>">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+            <a href="/books/new" class="btn btn-success btn-new-book">+ Add New Book</a>
+        </div>
+
+        <% if (message) { %>
+            <div class="message-box"><%= message %></div>
+        <% } %>
+        <% if (errors && errors.length > 0) { %>
+            <div class="error-box">
+                <% errors.forEach(error => { %>
+                    <p><%= error.msg %></p>
+                <% }) %>
+            </div>
+        <% } %>
+
         <% if (books && books.length > 0) { %>
-            <% books.forEach(function(book) { %>
-                <div class="book-card">
-                    <img src="<%= book.image || 'https://via.placeholder.com/280x220/cccccc/ffffff?text=No+Cover' %>" 
-                         alt="<%= book.title %> Cover" class="book-card-image">
-                    <div class="book-card-content">
-                        <h3><%= book.title %></h3>
-                        <p><strong>Author:</strong> <%= book.author_id %></p>
-                        <p><strong>Genre:</strong> <%= book.genre_id %></p>
-                        <p><strong>Price:</strong> $<%= book.price  %></p>
-                        <p><strong>Stock:</strong> <%= book.stock %> in stock</p>
+            <div class="books-grid">
+                <% books.forEach(book => { %>
+                    <div class="book-card">
+                        <a href="/books/<%= book.id %>" class="full-card-link"></a>
+                        <div>
+                            <h3><%= book.title %></h3>
+                            <p><strong>Author:</strong> <%= book.author_id %></p>
+                            <p><strong>Genre:</strong> <%= book.genre_id %></p>
+                            <p><strong>Price:</strong> $<%= book.price %></p>
+                            <p><strong>Stock:</strong> <%= book.stock %></p>
+                        </div>
+                        <div class="book-card-actions">
+                            <a href="/books/<%= book.id %>/edit" class="action-button btn-edit">Edit</a>
+                            <form action="/books/<%= book.id %>/delete" method="POST" style="flex:1; margin:0;">
+                                <button type="submit" class="action-button btn-delete" onclick="return confirm('Are you sure you want to delete this book?');">Delete</button>
+                            </form>
+                        </div>
                     </div>
-                    <div class="book-card-actions">
-                        <button class="btn btn-edit" onclick="location.href='/books/<%= book.id %>/edit'">Edit</button>
-                        <form action="/books/<%= book.id %>/delete" method="POST" style="flex:1; margin:0;">
-                            <button type="submit" class="btn btn-delete" onclick="return confirm('Are you sure you want to delete this book?');">Delete</button>
-                        </form>
-                    </div>
-                </div>
-            <% }) %>
-        <% } else { %>
-            <p style="text-align: center; grid-column: 1 / -1; color: #888;">No books found. Why not add one?</p>
-        <% } %>
-    </div>
+                <% }) %>
+            </div>
 
-    <div class="pagination">
-        <% if (pagination) { %>
-            <% if (pagination.prevPage) { %>
-                <button onclick="location.href='?page=<%= pagination.prevPage %>'">Previous</button>
-            <% } %>
-            <% for (let i = 1; i <= pagination.totalPages; i++) { %>
-                <button class="<%= i === pagination.currentPage ? 'active' : '' %>" onclick="location.href='?page=<%= i %>'"><%= i %></button>
-            <% } %>
-            <% if (pagination.nextPage) { %>
-                <button onclick="location.href='?page=<%= pagination.nextPage %>'">Next</button>
-            <% } %>
+            <div class="pagination">
+                <% if (pagination.prevPage) { %>
+                    <a href="?page=<%= pagination.prevPage %>" class="pagination-link">Prev</a>
+                <% } %>
+                <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+                    <a href="?page=<%= i %>" class="pagination-link <%= i === pagination.currentPage ? 'active' : '' %>"><%= i %></a>
+                <% } %>
+                <% if (pagination.nextPage) { %>
+                    <a href="?page=<%= pagination.nextPage %>" class="pagination-link">Next</a>
+                <% } %>
+            </div>
+        <% } else { %>
+            <p class="no-books-found">
+                No books found<%= searchQuery ? ` for "${searchQuery}"` : '' %>. Try adjusting your search or add a new book!
+            </p>
         <% } %>
     </div>
-</div>
+</body>
+</html>
